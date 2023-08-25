@@ -19,28 +19,25 @@ CD /D "%~dp0"
 :: BatchGotAdmin (Run as Admin code ends)
 :: Your codes should start from the following line
 ::===============================================================================
-title Twitch Channel Points Miner v2
+cd /d "%~dp0"
 setlocal enabledelayedexpansion
+title Twitch Channel Points Miner v2
+set Startup="%AppData%\Microsoft\Windows\Start Menu\Programs\Startup"
 Powershell "if ((Get-ExecutionPolicy -List | Where-Object {$_.Scope -eq \"LocalMachine\"}).ExecutionPolicy -ne \"RemoteSigned\") { Set-ExecutionPolicy -ExecutionPolicy RemoteSigned }"
-cd /d "%~dp0"
-if exist run.py (set Auto=True) else (set Auto=False)
+if not exist Auto.bat echo set Auto=False>Auto.bat
 :Menu
+call Auto.bat
 cd /d "%~dp0"
-set PythonVer=&set LocalVer=&set PythonUpdate=&set MinerUpdate=
+set PythonVer=none
+set LocalVer=none
 for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
-if not defined PythonVer set PythonVer=none
-for /f "delims=/ tokens=5" %%i in ('Powershell -File "%~dp0getPython.ps1"') do set LastsPythonVer=%%i
-if not "%PythonVer%"=="none" if not "%PythonVer%"=="%LastsPythonVer%" set PythonUpdate=Update Available 
 for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set LocalVer=%%i
-if not defined LocalVer set LocalVer=none
-for /f tokens^=2^ delims^=^" %%i in ('Powershell Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rdavydov/Twitch-Channel-Points-Miner-v2/master/TwitchChannelPointsMiner/__init__.py"^|findstr /i "version"') do set GitHubVer=%%i
-if not "%LocalVer%"=="none"  if not "%LocalVer%"=="%GitHubVer%" set MinerUpdate=Update Available 
 cls
 echo  ==========================================
 echo  =     Twitch Channel Points Miner v2     =
 echo  ==========================================
-echo    Python Version : %PythonVer% %PythonUpdate%
-echo    Miner  Version : %LocalVer% %MinerUpdate%
+echo    Python Version : %PythonVer%
+echo    Miner  Version : %LocalVer%
 echo    Auto Start Mining : %Auto%
 if "%Auto%"=="True" echo.
 if "%Auto%"=="True" echo    run.py are exist
@@ -52,23 +49,28 @@ echo    (3) Install Requirements
 echo    (4) Edit Miner Setting
 if "%Auto%"=="True" echo    (5) Disable Auto Mining
 if "%Auto%"=="False" echo    (5) Enable Auto Mining
+if not exist %Startup%\Miner.bat echo    (6) Add to Startup
+if exist %Startup%\Miner.bat echo    (6) Del from Startup
 echo    (0) Start Miner
 echo  ==========================================
-if "%Auto%"=="True" (choice /c 123450 /T 5 /D 0) else (choice /c 123450)
-if "%errorlevel%"=="6" goto Run
+if "%Auto%"=="True" (choice /c 1234560 /T 5 /D 0) else (choice /c 1234560)
+if "%errorlevel%"=="7" goto Run
+if "%errorlevel%"=="6" goto Startup
 if "%errorlevel%"=="5" goto Auto
 if "%errorlevel%"=="4" goto Edit
 if "%errorlevel%"=="3" goto Requirements
 if "%errorlevel%"=="2" goto Miner
 if "%errorlevel%"=="1" goto Python
 
+
 :Python
 if "%PythonVer%"=="none" goto DownloadPython
 echo Checking Lasts Python Version ......
 echo.
 set LocalPython=&set PythonURL=
-for /f "delims=/ tokens=5" %%i in ('Powershell -File "%~dp0getPython.ps1"') do set LastsPythonVer=%%i
-for /f "delims=" %%i in ('Powershell -File "%~dp0getPython.ps1"') do set PythonURL=%%i
+if not exist getPython.ps1 wget -q --show-progress --no-hsts https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/getPython.ps1
+for /f "delims=" %%i in ('Powershell -File getPython.ps1') do set PythonURL=%%i
+for /f "delims=/ tokens=5" %%i in ('echo %PythonURL%') do set LastsPythonVer=%%i
 if "%PythonVer%"=="%LastsPythonVer%" (
     echo no Update Available
 	timeout 3
@@ -94,11 +96,12 @@ if not exist RefreshEnv.cmd "%~dp0wget" -q --show-progress --no-hsts https://raw
 call RefreshEnv.cmd
 goto menu
 
+
 :Miner
-set LocalVer=&set GitHubVer=
 if not exist .\TwitchChannelPointsMiner\__init__.py goto DownloadMiner
 echo Checking Lasts Miner Version ......
 echo.
+set LocalVer=&set GitHubVer=
 for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set LocalVer=%%i
 for /f tokens^=2^ delims^=^" %%i in ('Powershell Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rdavydov/Twitch-Channel-Points-Miner-v2/master/TwitchChannelPointsMiner/__init__.py"^|findstr /i "version"') do set GitHubVer=%%i
 if "%LocalVer%"=="%GitHubVer%" (
@@ -143,6 +146,7 @@ if not "%LocalVer%"=="%GitHubVer%" (
 pause
 goto Menu
 
+
 :Edit
 if not exist run.py copy example.py run.py
 set Editor=notepad
@@ -151,9 +155,16 @@ if exist "C:\Program Files\Notepad++\notepad++.exe" set Editor="C:\Program Files
 start "" %Editor% run.py
 goto Menu
 
+
 :Auto
 if "%Auto%"=="True" set Auto=False&goto menu
 if "%Auto%"=="False" set Auto=True&goto menu
+
+
+:Startup
+if not exist %Startup%\Miner.bat echo start "" /D "%~dp0" %~nx0>%Startup%\Miner.bat&goto Menu
+if exist %Startup%\Miner.bat del %Startup%\Miner.bat&goto Menu
+
 
 :Run
 if not exist run.py (
