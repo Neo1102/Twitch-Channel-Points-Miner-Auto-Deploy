@@ -5,4 +5,4 @@
 另外建議下載Notepad++作為編輯器, 比用內建的記事本編輯好用很多
 https://notepad-plus-plus.org/downloads/
 
-首次執行請先下載Python與挖礦主程式,並手動編輯挖礦設定後方可使用
+首次執行請先下載Python(若已安裝Python3可以略過)與挖礦主程式,並手動編輯挖礦設定後方可使用
