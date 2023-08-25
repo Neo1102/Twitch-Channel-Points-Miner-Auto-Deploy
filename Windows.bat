@@ -1,23 +1,14 @@
 @echo off
-:: BatchGotAdmin (Run as Admin code starts)
-REM --> Check for permissions
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
-REM --> If error flag set, we do not have admin.
 if '%errorlevel%' NEQ '0' (
 echo Requesting administrative privileges...
 goto UACPrompt
 ) else ( goto gotAdmin )
 :UACPrompt
-echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
-echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\getadmin.vbs"
-"%temp%\getadmin.vbs"
+if not exist sudo.exe Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/sudo.exe" -OutFile "sudo.exe"
+sudo.exe "%~s0"
 exit /B
 :gotAdmin
-if exist "%temp%\getadmin.vbs" ( del "%temp%\getadmin.vbs" )
-pushd "%CD%"
-CD /D "%~dp0"
-:: BatchGotAdmin (Run as Admin code ends)
-:: Your codes should start from the following line
 ::===============================================================================
 cd /d "%~dp0"
 setlocal enabledelayedexpansion
@@ -31,11 +22,12 @@ cd /d "%~dp0"
 set PythonVer=none
 set LocalVer=none
 for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
-for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set LocalVer=%%i
+for /f tokens^=2^ delims^=^" %%i in ('findstr /OFF /i "version" .\TwitchChannelPointsMiner\__init__.py') do set LocalVer=%%i
 cls
 echo  ==========================================
 echo  =     Twitch Channel Points Miner v2     =
 echo  ==========================================
+echo %cd%
 echo    Python Version : %PythonVer%
 echo    Miner  Version : %LocalVer%
 echo    Auto Start Mining : %Auto%
@@ -68,11 +60,11 @@ if "%PythonVer%"=="none" goto DownloadPython
 echo Checking Lasts Python Version ......
 echo.
 set LocalPython=&set PythonURL=
-if not exist getPython.ps1 wget -q --show-progress --no-hsts https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/getPython.ps1
+if not exist getPython.ps1  Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/getPython.ps1" -OutFile "getPython.ps1"
 for /f "delims=" %%i in ('Powershell -File getPython.ps1') do set PythonURL=%%i
 for /f "delims=/ tokens=5" %%i in ('echo %PythonURL%') do set LastsPythonVer=%%i
 if "%PythonVer%"=="%LastsPythonVer%" (
-    echo no Update Available
+    echo No Update Available
 	timeout 3
     goto menu
 	)
@@ -92,7 +84,8 @@ if exist %pyinst% %pyinst% /passive InstallAllUsers=1 AppendPath=1 PrependPath=1
 echo Cleaning File ......
 echo.
 del /q %pyinst%
-if not exist RefreshEnv.cmd "%~dp0wget" -q --show-progress --no-hsts https://raw.githubusercontent.com/chocolatey/choco/master/src/chocolatey.resources/redirects/RefreshEnv.cmd
+cd /d "%~dp0"
+if not exist RefreshEnv.cmd Powershell wget -Uri "https://raw.githubusercontent.com/chocolatey/choco/master/src/chocolatey.resources/redirects/RefreshEnv.cmd" -OutFile "RefreshEnv.cmd"
 call RefreshEnv.cmd
 goto menu
 
@@ -103,9 +96,9 @@ echo Checking Lasts Miner Version ......
 echo.
 set LocalVer=&set GitHubVer=
 for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set LocalVer=%%i
-for /f tokens^=2^ delims^=^" %%i in ('Powershell Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rdavydov/Twitch-Channel-Points-Miner-v2/master/TwitchChannelPointsMiner/__init__.py"^|findstr /i "version"') do set GitHubVer=%%i
+for /f tokens^=2^ delims^=^" %%i in ('Powershell Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rdavydov/Twitch-Channel-Points-Miner-v2/master/TwitchChannelPointsMiner/__init__.py"^|findstr /OFF /i "version"') do set GitHubVer=%%i
 if "%LocalVer%"=="%GitHubVer%" (
-    echo no Update Available
+    echo No Update Available
 	timeout 3
     goto menu
 	)
@@ -118,7 +111,7 @@ if "%errorlevel%"=="2" goto menu
 :DownloadMiner
 echo Downloading Lasts Miner Program......
 cd /d "%Temp%"
-"%~dp0wget" -q --show-progress --no-hsts https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/archive/refs/heads/master.zip
+Powershell wget -Uri "https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/archive/refs/heads/master.zip" -OutFile "master.zip"
 echo Decompression Master Program ......
 echo.
 tar -xf master.zip
@@ -157,8 +150,8 @@ goto Menu
 
 
 :Auto
-if "%Auto%"=="True" set Auto=False&goto menu
-if "%Auto%"=="False" set Auto=True&goto menu
+if "%Auto%"=="True" set Auto=False>Auto.bat&goto menu
+if "%Auto%"=="False" set Auto=True>Auto.bat&goto menu
 
 
 :Startup
