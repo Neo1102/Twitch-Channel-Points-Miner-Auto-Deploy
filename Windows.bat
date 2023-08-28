@@ -33,7 +33,7 @@ echo  ==========================================
 echo  =     Twitch Channel Points Miner v2     =
 echo  ==========================================
 echo    Python Version : %PythonVer% %PyUpdate%
-echo    Miner  Version : %LocalVer% %MinerUpdate%
+echo    Miner  Version : %MinerVer% %MinerUpdate%
 echo    Auto Start Mining : %Auto%
 if "%Auto%"=="True" echo.
 if "%Auto%"=="True" echo    run.py are exist
@@ -82,16 +82,15 @@ echo Lasts Version : %LastsPythonVer%
 choice /M:"Do you want to update Python?"
 if "%errorlevel%"=="2" goto :eof
 :DownloadPython
-echo Downloading Python Installer ......
+echo Downloading Python %LastsPythonVer% Installer ......
 echo.
 cd /d "%Temp%"
-"%~dp0wget" -q --show-progress --no-hsts %PythonURL%
-for /f "delims=" %%i in ('dir /b *.exe ^|findstr /i "python"') do set pyinst=%%i
-echo Installing %pyinst% ......
-if exist %pyinst% %pyinst% /passive InstallAllUsers=1 AppendPath=1 PrependPath=1
+Powershell wget -Uri "%PythonURL%" -OutFile "python.exe"
+echo Installing Python %LastsPythonVer% ......
+if exist python.exe python.exe /passive InstallAllUsers=1 AppendPath=1 PrependPath=1
 echo Cleaning File ......
 echo.
-del /q %pyinst%
+del /q python.exe
 cd /d "%~dp0"
 if not exist RefreshEnv.cmd Powershell wget -Uri "https://raw.githubusercontent.com/chocolatey/choco/master/src/chocolatey.resources/redirects/RefreshEnv.cmd" -OutFile "RefreshEnv.cmd"
 call RefreshEnv.cmd
@@ -101,11 +100,12 @@ goto :eof
 :Miner
 echo Checking Lasts Miner Version ......
 echo.
-set LocalVer=none&set GitHubVer=&set MinerUpdate=
-if exist .\TwitchChannelPointsMiner\__init__.py  for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set LocalVer=%%i
+set MinerVer=none&set GitHubVer=&set MinerUpdate=
+if not exist .\TwitchChannelPointsMiner\__init__.py if "%Status%"=="Check" (set MinerUpdate=Update Available&goto :eof) else (goto DownloadMiner)
+for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set MinerVer=%%i
 call :CheckConnection https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/
 for /f tokens^=2^ delims^=^" %%i in ('Powershell "wget -Uri "https://raw.githubusercontent.com/rdavydov/Twitch-Channel-Points-Miner-v2/master/TwitchChannelPointsMiner/__init__.py"|Select Content|Format-List"^|findstr /OFF /i "version"') do set GitHubVer=%%i
-if "%LocalVer%"=="%GitHubVer%" (
+if "%MinerVer%"=="%GitHubVer%" (
     if "%Status%"=="Check" goto :eof
 	echo No Update Available
 	timeout 3
@@ -113,9 +113,8 @@ if "%LocalVer%"=="%GitHubVer%" (
 	) else ( 
 	if "%Status%"=="Check" set MinerUpdate=Update Available&goto :eof
 	)
-if not exist .\TwitchChannelPointsMiner\__init__.py goto DownloadMiner
 echo Update Available
-echo Current  Version : %LocalVer%
+echo Current  Version : %MinerVer%
 echo Lasts Version : %GitHubVer%
 echo.
 choice /M:"Do you want to update Miner program?"
@@ -141,7 +140,7 @@ echo.
 pip install -r requirements.txt
 python setup.py build
 python setup.py install
-if not "%LocalVer%"=="%GitHubVer%" (
+if not "%MinerVer%"=="%GitHubVer%" (
        echo.
        echo There may be differences between the new and old versions.
 	   echo Please manually check if run.py matches the format of the new example.py.
