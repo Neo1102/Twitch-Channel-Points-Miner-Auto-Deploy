@@ -20,10 +20,11 @@ if exist ScriptUpdate.bat del ScriptUpdate.bat
 
 
 :Check_Script_Update
+echo Checking Script Update......
 Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/Windows.bat" -OutFile "GitHub.bat"
 fc Windows.bat GitHub.bat >nul
 if "%errorlevel%"=="0" del GitHub.bat&goto Menu
-echo Update Available!
+echo Update Available
 choice /M:"Do you want to update Miner program?"
 if "%errorlevel%"=="2" goto menu
 setlocal DisableDelayedExpansion
@@ -87,7 +88,7 @@ if "%PythonVer%"=="%LastsPythonVer%" (
 	timeout 3
     goto menu
 	)
-echo Update Available!
+echo Update Available
 echo Current Version : %PythonVer%
 echo Lasts Version : %LastsPythonVer%
 choice /M:"Do you want to update Python?"
@@ -122,7 +123,7 @@ if "%LocalVer%"=="%GitHubVer%" (
 	timeout 3
     goto menu
 	)
-echo Update Available!
+echo Update Available
 echo Current  Version : %LocalVer%
 echo Lasts Version : %GitHubVer%
 echo.
