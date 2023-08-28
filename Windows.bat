@@ -94,6 +94,7 @@ del /q python.exe
 cd /d "%~dp0"
 if not exist RefreshEnv.cmd Powershell wget -Uri "https://raw.githubusercontent.com/chocolatey/choco/master/src/chocolatey.resources/redirects/RefreshEnv.cmd" -OutFile "RefreshEnv.cmd"
 call RefreshEnv.cmd
+for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
 goto :eof
 
 
@@ -134,6 +135,7 @@ echo.
 del /q /s master.zip Twitch-Channel-Points-Miner-v2-master
 rmdir /q /s Twitch-Channel-Points-Miner-v2-master
 cd /d "%~dp0"
+for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set MinerVer=%%i
 :Requirements
 echo Installing Requirements ......
 echo.
