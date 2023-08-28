@@ -16,11 +16,13 @@ title Twitch Channel Points Miner v2
 set Startup="%AppData%\Microsoft\Windows\Start Menu\Programs\Startup"
 Powershell "if ((Get-ExecutionPolicy -List | Where-Object {$_.Scope -eq \"LocalMachine\"}).ExecutionPolicy -ne \"RemoteSigned\") { Set-ExecutionPolicy -ExecutionPolicy RemoteSigned }"
 if not exist Auto.bat echo set Auto=False>Auto.bat
+if exist ScriptUpdate.bat del ScriptUpdate.bat
+
 
 :Check_Script_Update
 Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/Windows.bat" -OutFile "GitHub.bat"
 fc Windows.bat GitHub.bat >nul
-if "%errorlevel%"=="0" goto Menu
+if "%errorlevel%"=="0" del GitHub.bat&goto Menu
 echo Update Available!
 choice /M:"Do you want to update Miner program?"
 if "%errorlevel%"=="2" goto menu
