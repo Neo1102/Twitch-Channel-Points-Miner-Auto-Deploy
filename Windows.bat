@@ -1,7 +1,7 @@
 @echo off
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 if '%errorlevel%' NEQ '0' (
-echo Requesting administrative privileges...
+echo Requesting Administrative Privileges...
 goto UACPrompt
 ) else ( goto gotAdmin )
 :UACPrompt
@@ -16,6 +16,23 @@ title Twitch Channel Points Miner v2
 set Startup="%AppData%\Microsoft\Windows\Start Menu\Programs\Startup"
 Powershell "if ((Get-ExecutionPolicy -List | Where-Object {$_.Scope -eq \"LocalMachine\"}).ExecutionPolicy -ne \"RemoteSigned\") { Set-ExecutionPolicy -ExecutionPolicy RemoteSigned }"
 if not exist Auto.bat echo set Auto=False>Auto.bat
+
+:Check_Script_Update
+Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/Windows.bat" -OutFile "GitHub.bat"
+fc Windows.bat GitHub.bat >nul
+if "%errorlevel%"=="0" goto Menu
+echo Update Available!
+choice /M:"Do you want to update Miner program?"
+if "%errorlevel%"=="2" goto menu
+setlocal DisableDelayedExpansion
+echo @echo off>ScriptUpdate.bat
+echo move /y GitHub.bat Windows.bat>>ScriptUpdate.bat
+echo start "" /D "%~dp0" %~nx0>>ScriptUpdate.bat
+echo exit>>ScriptUpdate.bat
+start ScriptUpdate.bat
+exit
+
+
 :Menu
 call Auto.bat
 cd /d "%~dp0"
@@ -27,7 +44,6 @@ cls
 echo  ==========================================
 echo  =     Twitch Channel Points Miner v2     =
 echo  ==========================================
-echo %cd%
 echo    Python Version : %PythonVer%
 echo    Miner  Version : %LocalVer%
 echo    Auto Start Mining : %Auto%
@@ -59,6 +75,7 @@ if "%errorlevel%"=="1" goto Python
 if "%PythonVer%"=="none" goto DownloadPython
 echo Checking Lasts Python Version ......
 echo.
+call :CheckConnection https://www.python.org/downloads/
 set LocalPython=&set PythonURL=
 if not exist getPython.ps1  Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/getPython.ps1" -OutFile "getPython.ps1"
 for /f "delims=" %%i in ('Powershell -File getPython.ps1') do set PythonURL=%%i
@@ -94,9 +111,10 @@ goto menu
 if not exist .\TwitchChannelPointsMiner\__init__.py goto DownloadMiner
 echo Checking Lasts Miner Version ......
 echo.
+call :CheckConnection https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/
 set LocalVer=&set GitHubVer=
 for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set LocalVer=%%i
-for /f tokens^=2^ delims^=^" %%i in ('Powershell Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rdavydov/Twitch-Channel-Points-Miner-v2/master/TwitchChannelPointsMiner/__init__.py"^|findstr /OFF /i "version"') do set GitHubVer=%%i
+for /f tokens^=2^ delims^=^" %%i in ('Powershell "wget -Uri "https://raw.githubusercontent.com/rdavydov/Twitch-Channel-Points-Miner-v2/master/TwitchChannelPointsMiner/__init__.py"|Select Content|Format-List"^|findstr /OFF /i "version"') do set GitHubVer=%%i
 if "%LocalVer%"=="%GitHubVer%" (
     echo No Update Available
 	timeout 3
@@ -106,7 +124,7 @@ echo Update Available!
 echo Current  Version : %LocalVer%
 echo Lasts Version : %GitHubVer%
 echo.
-choice /M:"Do you want to update Miner Program?"
+choice /M:"Do you want to update Miner program?"
 if "%errorlevel%"=="2" goto menu
 :DownloadMiner
 echo Downloading Lasts Miner Program......
@@ -150,8 +168,8 @@ goto Menu
 
 
 :Auto
-if "%Auto%"=="True" set Auto=False>Auto.bat&goto menu
-if "%Auto%"=="False" set Auto=True>Auto.bat&goto menu
+if "%Auto%"=="True" echo set Auto=False>Auto.bat&goto menu
+if "%Auto%"=="False" echo set Auto=True>Auto.bat&goto menu
 
 
 :Startup
@@ -166,6 +184,7 @@ if not exist run.py (
 	  pause
 	  goto Menu
 	  )
+call :CheckConnection https://www.twitch.tv/
 python run.py
 if "%errorlevel%"=="1" pause
 rmdir /s /q __pycache__
@@ -173,3 +192,12 @@ rmdir /s /q TwitchChannelPointsMiner\__pycache__
 rmdir /s /q TwitchChannelPointsMiner\classes\__pycache__
 rmdir /s /q TwitchChannelPointsMiner\classes\entities\__pycache__
 goto Menu
+
+:CheckConnection
+Powershell wget -Uri "%1"^|Select StatusCode|findstr "200" >nul
+if "%errorlevel%"=="0" goto :eof
+echo Currently unable to connect to %1.
+echo Please check your internet connection or try again later.
+timeout 5
+goto Menu
+   
