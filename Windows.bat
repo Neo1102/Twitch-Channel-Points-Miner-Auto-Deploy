@@ -199,6 +199,7 @@ goto menu
 
 :Check_Script_Update
 echo Checking Script Update......
+echo.
 Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/Windows.bat" -OutFile "GitHub.bat"
 fc Windows.bat GitHub.bat >nul
 if "%errorlevel%"=="0" del GitHub.bat&goto :eof
