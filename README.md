@@ -1,4 +1,5 @@
 # Twitch-Channel-Points-Miner-Auto-Deploy
+下載Windows.bat執行即可, 其餘檔案若有需求腳本會自動下載
 首次執行請先下載Python(若已安裝Python3可以略過)與挖礦機器人,手動設定挖礦機器人後方可使用
 詳細的機器人使用方法請參閱 https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2
 
