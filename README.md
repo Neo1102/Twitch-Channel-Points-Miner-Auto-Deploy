@@ -13,6 +13,7 @@
 
 (6)可以將腳本加入開機自動啟動,或將其從自動啟動刪除
 
+一切都就緒之後 按(0)開始挖點數
 ![image](https://github.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/assets/22034115/ebb67502-43b2-4ce0-b2b2-c031be9668f7)
 
 
