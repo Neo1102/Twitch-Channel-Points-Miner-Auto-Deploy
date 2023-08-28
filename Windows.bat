@@ -203,7 +203,7 @@ Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-P
 fc Windows.bat GitHub.bat >nul
 if "%errorlevel%"=="0" del GitHub.bat&goto :eof
 echo Update Available
-choice /M:"Do you want to update Miner program?"
+choice /M:"Do you want to update Script?"
 if "%errorlevel%"=="2" goto :eof
 setlocal DisableDelayedExpansion
 echo @echo off>ScriptUpdate.bat
