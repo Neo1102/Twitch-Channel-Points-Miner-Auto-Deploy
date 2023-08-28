@@ -9,11 +9,11 @@
 
 詳細的機器人設定/使用方法請參閱 https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2
 
-(5)可以切換機器人自動挖礦,設定值會儲存在同目錄下,下次執行時會自動帶入
+(5)可以切換機器人自動挖礦,設為自動時將在進入選單5秒後自動執行挖礦,設定值會儲存在同目錄下,下次執行時會自動帶入
 
 (6)可以將腳本加入開機自動啟動,或將其從自動啟動刪除
 
-一切都就緒之後 按(0)開始挖點數
+一切都就緒之後 按(0)開始挖礦
 ![image](https://github.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/assets/22034115/ebb67502-43b2-4ce0-b2b2-c031be9668f7)
 
 
