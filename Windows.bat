@@ -20,6 +20,7 @@ if not exist Auto.bat echo set Auto=False>Auto.bat
 if exist ScriptUpdate.bat del ScriptUpdate.bat
 if not exist getPython.ps1  Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/getPython.ps1" -OutFile "getPython.ps1"
 set Status=Check
+call :Check_Script_Update
 call :Python
 call :Miner
 
