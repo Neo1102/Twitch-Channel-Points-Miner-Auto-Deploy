@@ -101,8 +101,8 @@ goto :eof
 :Miner
 echo Checking Lasts Miner Version ......
 echo.
-set LocalVer=&set GitHubVer=&set MinerUpdate=
-for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set LocalVer=%%i
+set LocalVer=none&set GitHubVer=&set MinerUpdate=
+if exist .\TwitchChannelPointsMiner\__init__.py  for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set LocalVer=%%i
 call :CheckConnection https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/
 for /f tokens^=2^ delims^=^" %%i in ('Powershell "wget -Uri "https://raw.githubusercontent.com/rdavydov/Twitch-Channel-Points-Miner-v2/master/TwitchChannelPointsMiner/__init__.py"|Select Content|Format-List"^|findstr /OFF /i "version"') do set GitHubVer=%%i
 if "%LocalVer%"=="%GitHubVer%" (
