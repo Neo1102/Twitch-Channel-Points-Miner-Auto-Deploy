@@ -1,4 +1,5 @@
 @echo off
+cls
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 if '%errorlevel%' NEQ '0' (
 echo Requesting Administrative Privileges...
@@ -17,38 +18,21 @@ set Startup="%AppData%\Microsoft\Windows\Start Menu\Programs\Startup"
 Powershell "if ((Get-ExecutionPolicy -List | Where-Object {$_.Scope -eq \"LocalMachine\"}).ExecutionPolicy -ne \"RemoteSigned\") { Set-ExecutionPolicy -ExecutionPolicy RemoteSigned }"
 if not exist Auto.bat echo set Auto=False>Auto.bat
 if exist ScriptUpdate.bat del ScriptUpdate.bat
-
-
-:Check_Script_Update
-echo Checking Script Update......
-Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/Windows.bat" -OutFile "GitHub.bat"
-fc Windows.bat GitHub.bat >nul
-if "%errorlevel%"=="0" del GitHub.bat&goto Menu
-echo Update Available
-choice /M:"Do you want to update Miner program?"
-if "%errorlevel%"=="2" goto menu
-setlocal DisableDelayedExpansion
-echo @echo off>ScriptUpdate.bat
-echo move /y GitHub.bat Windows.bat>>ScriptUpdate.bat
-echo start "" /D "%~dp0" %~nx0>>ScriptUpdate.bat
-echo exit>>ScriptUpdate.bat
-start ScriptUpdate.bat
-exit
-
+if not exist getPython.ps1  Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/getPython.ps1" -OutFile "getPython.ps1"
+set Status=Check
+call :Python
+call :Miner
 
 :Menu
-call Auto.bat
 cd /d "%~dp0"
-set PythonVer=none
-set LocalVer=none
-for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
-for /f tokens^=2^ delims^=^" %%i in ('findstr /OFF /i "version" .\TwitchChannelPointsMiner\__init__.py') do set LocalVer=%%i
+call Auto.bat
+set Status=Menu
 cls
 echo  ==========================================
 echo  =     Twitch Channel Points Miner v2     =
 echo  ==========================================
-echo    Python Version : %PythonVer%
-echo    Miner  Version : %LocalVer%
+echo    Python Version : %PythonVer% %PyUpdate%
+echo    Miner  Version : %LocalVer% %MinerUpdate%
 echo    Auto Start Mining : %Auto%
 if "%Auto%"=="True" echo.
 if "%Auto%"=="True" echo    run.py are exist
@@ -65,34 +49,37 @@ if exist %Startup%\Miner.bat echo    (6) Del from Startup
 echo    (0) Start Miner
 echo  ==========================================
 if "%Auto%"=="True" (choice /c 1234560 /T 5 /D 0) else (choice /c 1234560)
-if "%errorlevel%"=="7" goto Run
-if "%errorlevel%"=="6" goto Startup
-if "%errorlevel%"=="5" goto Auto
-if "%errorlevel%"=="4" goto Edit
-if "%errorlevel%"=="3" goto Requirements
-if "%errorlevel%"=="2" goto Miner
-if "%errorlevel%"=="1" goto Python
-
+if "%errorlevel%"=="7" call :Run
+if "%errorlevel%"=="6" call :Startup
+if "%errorlevel%"=="5" call :Auto
+if "%errorlevel%"=="4" call :Edit
+if "%errorlevel%"=="3" call :Requirements
+if "%errorlevel%"=="2" call :Miner
+if "%errorlevel%"=="1" call :Python
+goto menu
 
 :Python
-if "%PythonVer%"=="none" goto DownloadPython
 echo Checking Lasts Python Version ......
 echo.
+set PythonVer=none&set LastsPythonVer=&set PythonURL=&set PythonUpdate=
+for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
 call :CheckConnection https://www.python.org/downloads/
-set LocalPython=&set PythonURL=
-if not exist getPython.ps1  Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/getPython.ps1" -OutFile "getPython.ps1"
 for /f "delims=" %%i in ('Powershell -File getPython.ps1') do set PythonURL=%%i
 for /f "delims=/ tokens=5" %%i in ('echo %PythonURL%') do set LastsPythonVer=%%i
 if "%PythonVer%"=="%LastsPythonVer%" (
-    echo No Update Available
+    if "%Status%"=="Check" goto :eof
+	echo No Update Available
 	timeout 3
-    goto menu
+    goto :eof
+	) else ( 
+	if "%Status%"=="Check" set PythonUpdate=Update Available&goto :eof
 	)
+if "%PythonVer%"=="none" goto DownloadPython
 echo Update Available
 echo Current Version : %PythonVer%
 echo Lasts Version : %LastsPythonVer%
 choice /M:"Do you want to update Python?"
-if "%errorlevel%"=="2" goto menu
+if "%errorlevel%"=="2" goto :eof
 :DownloadPython
 echo Downloading Python Installer ......
 echo.
@@ -107,28 +94,31 @@ del /q %pyinst%
 cd /d "%~dp0"
 if not exist RefreshEnv.cmd Powershell wget -Uri "https://raw.githubusercontent.com/chocolatey/choco/master/src/chocolatey.resources/redirects/RefreshEnv.cmd" -OutFile "RefreshEnv.cmd"
 call RefreshEnv.cmd
-goto menu
+goto :eof
 
 
 :Miner
-if not exist .\TwitchChannelPointsMiner\__init__.py goto DownloadMiner
 echo Checking Lasts Miner Version ......
 echo.
-call :CheckConnection https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/
-set LocalVer=&set GitHubVer=
+set LocalVer=&set GitHubVer=&set MinerUpdate=
 for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set LocalVer=%%i
+call :CheckConnection https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/
 for /f tokens^=2^ delims^=^" %%i in ('Powershell "wget -Uri "https://raw.githubusercontent.com/rdavydov/Twitch-Channel-Points-Miner-v2/master/TwitchChannelPointsMiner/__init__.py"|Select Content|Format-List"^|findstr /OFF /i "version"') do set GitHubVer=%%i
 if "%LocalVer%"=="%GitHubVer%" (
-    echo No Update Available
+    if "%Status%"=="Check" goto :eof
+	echo No Update Available
 	timeout 3
-    goto menu
+    goto :eof
+	) else ( 
+	if "%Status%"=="Check" set MinerUpdate=Update Available&goto :eof
 	)
+if not exist .\TwitchChannelPointsMiner\__init__.py goto DownloadMiner
 echo Update Available
 echo Current  Version : %LocalVer%
 echo Lasts Version : %GitHubVer%
 echo.
 choice /M:"Do you want to update Miner program?"
-if "%errorlevel%"=="2" goto menu
+if "%errorlevel%"=="2" goto :eof
 :DownloadMiner
 echo Downloading Lasts Miner Program......
 cd /d "%Temp%"
@@ -158,7 +148,7 @@ if not "%LocalVer%"=="%GitHubVer%" (
 	   echo.
 	   )
 pause
-goto Menu
+goto :eof
 
 
 :Edit
@@ -167,17 +157,17 @@ set Editor=notepad
 if exist "C:\Program Files (x86)\Notepad++\notepad++.exe" set Editor="C:\Program Files (x86)\Notepad++\notepad++.exe"
 if exist "C:\Program Files\Notepad++\notepad++.exe" set Editor="C:\Program Files\Notepad++\notepad++.exe"
 start "" %Editor% run.py
-goto Menu
+goto :eof
 
 
 :Auto
-if "%Auto%"=="True" echo set Auto=False>Auto.bat&goto menu
-if "%Auto%"=="False" echo set Auto=True>Auto.bat&goto menu
+if "%Auto%"=="True" echo set Auto=False>Auto.bat&goto :eof
+if "%Auto%"=="False" echo set Auto=True>Auto.bat&goto :eof
 
 
 :Startup
-if not exist %Startup%\Miner.bat echo start "" /D "%~dp0" %~nx0>%Startup%\Miner.bat&goto Menu
-if exist %Startup%\Miner.bat del %Startup%\Miner.bat&goto Menu
+if not exist %Startup%\Miner.bat echo start "" /D "%~dp0" %~nx0>%Startup%\Miner.bat&goto :eof
+if exist %Startup%\Miner.bat del %Startup%\Miner.bat&goto :eof
 
 
 :Run
@@ -185,22 +175,39 @@ if not exist run.py (
       echo run.py does not exist.
 	  echo Please create your config file or rename the config file to run.py
 	  pause
-	  goto Menu
+	  goto :eof
 	  )
 call :CheckConnection https://www.twitch.tv/
 python run.py
-if "%errorlevel%"=="1" pause
+if not "%errorlevel%"=="0" timeout 10
 rmdir /s /q __pycache__
 rmdir /s /q TwitchChannelPointsMiner\__pycache__
 rmdir /s /q TwitchChannelPointsMiner\classes\__pycache__
 rmdir /s /q TwitchChannelPointsMiner\classes\entities\__pycache__
-goto Menu
+goto :eof
 
 :CheckConnection
 Powershell wget -Uri "%1"^|Select StatusCode|findstr "200" >nul
 if "%errorlevel%"=="0" goto :eof
+if "%Status%"=="Check" goto menu
 echo Currently unable to connect to %1.
 echo Please check your internet connection or try again later.
 timeout 5
-goto Menu
-   
+goto menu
+
+
+:Check_Script_Update
+echo Checking Script Update......
+Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/Windows.bat" -OutFile "GitHub.bat"
+fc Windows.bat GitHub.bat >nul
+if "%errorlevel%"=="0" del GitHub.bat&goto :eof
+echo Update Available
+choice /M:"Do you want to update Miner program?"
+if "%errorlevel%"=="2" goto :eof
+setlocal DisableDelayedExpansion
+echo @echo off>ScriptUpdate.bat
+echo move /y GitHub.bat Windows.bat>>ScriptUpdate.bat
+echo start "" /D "%~dp0" %~nx0>>ScriptUpdate.bat
+echo exit>>ScriptUpdate.bat
+start ScriptUpdate.bat
+exit
