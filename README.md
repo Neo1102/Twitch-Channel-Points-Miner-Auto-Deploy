@@ -5,7 +5,7 @@
 詳細的機器人使用方法請參閱 https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2
 
 
-建議使用Notepad++作為編輯器, 比用內建的記事本編輯好用很多
+建議使用Notepad++作為編輯器, 比用內建的記事本編輯方便很多
 https://notepad-plus-plus.org/downloads/
 
 
