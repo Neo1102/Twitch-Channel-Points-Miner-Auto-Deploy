@@ -2,11 +2,17 @@
 下載Windows.bat執行即可, 其餘檔案若有需求腳本會自動下載
 
 若Python或Miner後面的版本為none 請先執行 (1)Download Python/(2)Miner Program
+
 執行Download Miner Program會順便Install Requirements
+
 下載/安裝完成之後 請(4)手動編輯挖礦設定
+
 詳細的機器人設定/使用方法請參閱 https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2
+
 (5)可以切換機器人自動挖礦,設定值會儲存在同目錄下,下次執行時會自動帶入
+
 (6)可以將腳本加入開機自動啟動,或將其從自動啟動刪除
+
 ![image](https://github.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/assets/22034115/ebb67502-43b2-4ce0-b2b2-c031be9668f7)
 
 
