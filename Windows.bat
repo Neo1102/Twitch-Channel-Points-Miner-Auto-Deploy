@@ -193,7 +193,7 @@ goto :eof
 :ConnectionCheck
 Powershell wget -Uri "%1"^|Select StatusCode|findstr "200" >nul
 if "%errorlevel%"=="0" goto :eof
-if "%Status%"=="%Startup%" goto ConnectionCheck
+if "%Status%"=="Startup" goto ConnectionCheck
 if "%Status%"=="Check" goto menu
 echo Currently unable to connect to %1.
 echo Please check your internet connection or try again later.
