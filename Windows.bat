@@ -38,7 +38,7 @@ echo    Python Version : %PythonVer% %PyUpdate%
 echo    Miner  Version : %MinerVer% %MinerUpdate%
 echo    Auto Start Mining : %Auto%
 if "%Auto%"=="True" echo.
-if "%Auto%"=="True" echo    run.py are exist
+if "%Auto%"=="True" echo    Auto-mining has been enabled.
 if "%Auto%"=="True" echo    Miner will autorun in 5s
 echo.
 echo    (1) Download Python
