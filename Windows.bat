@@ -12,8 +12,10 @@ exit /B
 :gotAdmin
 ::===============================================================================
 cd /d "%~dp0"
+set Status=Startup
 setlocal enabledelayedexpansion
 title Twitch Channel Points Miner v2
+call :ConnectionCheck https://www.twitch.tv/
 set Startup="%AppData%\Microsoft\Windows\Start Menu\Programs\Startup"
 Powershell "if ((Get-ExecutionPolicy -List | Where-Object {$_.Scope -eq \"LocalMachine\"}).ExecutionPolicy -ne \"RemoteSigned\") { Set-ExecutionPolicy -ExecutionPolicy RemoteSigned }"
 if not exist Auto.bat echo set Auto=False>Auto.bat
@@ -64,7 +66,7 @@ echo Checking Lasts Python Version ......
 echo.
 set PythonVer=none&set LastsPythonVer=&set PythonURL=&set PythonUpdate=
 for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
-call :CheckConnection https://www.python.org/downloads/
+call :ConnectionCheck https://www.python.org/downloads/
 for /f "delims=" %%i in ('Powershell -File getPython.ps1') do set PythonURL=%%i
 for /f "delims=/ tokens=5" %%i in ('echo %PythonURL%') do set LastsPythonVer=%%i
 if "%PythonVer%"=="%LastsPythonVer%" (
@@ -104,7 +106,7 @@ echo.
 set MinerVer=none&set GitHubVer=&set MinerUpdate=
 if not exist .\TwitchChannelPointsMiner\__init__.py if "%Status%"=="Check" (set MinerUpdate=Update Available&goto :eof) else (goto DownloadMiner)
 for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set MinerVer=%%i
-call :CheckConnection https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/
+call :ConnectionCheck https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/
 for /f tokens^=2^ delims^=^" %%i in ('Powershell "wget -Uri "https://raw.githubusercontent.com/rdavydov/Twitch-Channel-Points-Miner-v2/master/TwitchChannelPointsMiner/__init__.py"|Select Content|Format-List"^|findstr /OFF /i "version"') do set GitHubVer=%%i
 if "%MinerVer%"=="%GitHubVer%" (
     if "%Status%"=="Check" goto :eof
@@ -179,7 +181,7 @@ if not exist run.py (
 	  pause
 	  goto :eof
 	  )
-call :CheckConnection https://www.twitch.tv/
+call :ConnectionCheck https://www.twitch.tv/
 python run.py
 if not "%errorlevel%"=="0" timeout 10
 rmdir /s /q __pycache__
@@ -188,9 +190,10 @@ rmdir /s /q TwitchChannelPointsMiner\classes\__pycache__
 rmdir /s /q TwitchChannelPointsMiner\classes\entities\__pycache__
 goto :eof
 
-:CheckConnection
+:ConnectionCheck
 Powershell wget -Uri "%1"^|Select StatusCode|findstr "200" >nul
 if "%errorlevel%"=="0" goto :eof
+if "%Status%"=="%Startup%" goto ConnectionCheck
 if "%Status%"=="Check" goto menu
 echo Currently unable to connect to %1.
 echo Please check your internet connection or try again later.
