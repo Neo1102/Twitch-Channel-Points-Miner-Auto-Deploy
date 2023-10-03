@@ -107,7 +107,7 @@ set MinerVer=none&set GitHubVer=&set MinerUpdate=
 if not exist .\TwitchChannelPointsMiner\__init__.py if "%Status%"=="Check" (set MinerUpdate=Update Available&goto :eof) else (goto DownloadMiner)
 for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set MinerVer=%%i
 call :ConnectionCheck https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/
-for /f tokens^=2^ delims^=^" %%i in ('Powershell "wget -Uri "https://raw.githubusercontent.com/rdavydov/Twitch-Channel-Points-Miner-v2/master/TwitchChannelPointsMiner/__init__.py"|Select Content|Format-List"^|findstr /OFF /i "version"') do set GitHubVer=%%i
+for /f "tokens=3" %%i in ('Powershell "Invoke-RestMethod -Uri https://api.github.com/repos/rdavydov/Twitch-Channel-Points-Miner-v2/releases/latest|Select tag_name|Format-List"') do set GitHubVer=%%i
 if "%MinerVer%"=="%GitHubVer%" (
     if "%Status%"=="Check" goto :eof
 	echo No Update Available
