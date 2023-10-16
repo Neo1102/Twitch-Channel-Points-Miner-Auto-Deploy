@@ -97,6 +97,7 @@ cd /d "%~dp0"
 if not exist RefreshEnv.cmd Powershell wget -Uri "https://raw.githubusercontent.com/chocolatey/choco/master/src/chocolatey.resources/redirects/RefreshEnv.cmd" -OutFile "RefreshEnv.cmd"
 call RefreshEnv.cmd
 for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
+call :Requirements
 goto :eof
 
 
@@ -123,13 +124,13 @@ echo.
 choice /M:"Do you want to update Miner program?"
 if "%errorlevel%"=="2" goto :eof
 :DownloadMiner
-echo Downloading Lasts Miner Program......
+echo Downloading Lasts Miner Program ......
 cd /d "%Temp%"
 Powershell wget -Uri "https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/archive/refs/heads/master.zip" -OutFile "master.zip"
 echo Decompression Master Program ......
 echo.
 tar -xf master.zip
-echo Move Master Program ......
+echo Moving Master Program ......
 echo.
 xcopy /e /y .\Twitch-Channel-Points-Miner-v2-master "%~dp0"
 echo Cleaning File ......
@@ -137,20 +138,24 @@ echo.
 del /q /s master.zip Twitch-Channel-Points-Miner-v2-master
 rmdir /q /s Twitch-Channel-Points-Miner-v2-master
 cd /d "%~dp0"
-for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set MinerVer=%%i
-:Requirements
-echo Installing Requirements ......
-echo.
-pip install -r requirements.txt
-python setup.py build
-python setup.py install
+call :Requirements
 if not "%MinerVer%"=="%GitHubVer%" (
        echo.
        echo There may be differences between the new and old versions.
 	   echo Please manually check if run.py matches the format of the new example.py.
 	   echo Make necessary modifications manually if needed.
 	   echo.
+	   pause
 	   )
+for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set MinerVer=%%i
+goto :eof
+
+:Requirements
+echo Installing Requirements ......
+echo.
+pip install -r requirements.txt
+python setup.py build
+python setup.py install
 pause
 goto :eof
 
