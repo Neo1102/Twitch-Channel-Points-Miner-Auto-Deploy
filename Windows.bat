@@ -4,11 +4,10 @@ cls
 REM --> Check for permissions
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 REM --> If error flag set, we do not have admin.
-if '%errorlevel%' EQU '0' goto goto gotAdmin
+if "%errorlevel%"=="0" goto gotAdmin
 echo Requesting administrative privileges...
-goto UACPrompt
-:UACPrompt
 if not exist sudo.exe Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/sudo.exe" -OutFile "sudo.exe"
+sudo /?|findstr /i "gsudo" >nul
 if "%errorlevel%"=="0" sudo.exe "%~s0" & exit /B
 echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
 echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\getadmin.vbs"
