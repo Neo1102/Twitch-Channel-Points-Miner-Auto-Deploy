@@ -1,15 +1,25 @@
 @echo off
 cls
+:: BatchGotAdmin (Run as Admin code starts)
+REM --> Check for permissions
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
-if '%errorlevel%' NEQ '0' (
-echo Requesting Administrative Privileges...
+REM --> If error flag set, we do not have admin.
+if '%errorlevel%' EQU '0' goto goto gotAdmin
+echo Requesting administrative privileges...
 goto UACPrompt
-) else ( goto gotAdmin )
 :UACPrompt
 if not exist sudo.exe Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/sudo.exe" -OutFile "sudo.exe"
-sudo.exe "%~s0"
+if "%errorlevel%"=="0" sudo.exe "%~s0" & exit /B
+echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
+echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\getadmin.vbs"
+"%temp%\getadmin.vbs"
 exit /B
 :gotAdmin
+if exist "%temp%\getadmin.vbs" ( del "%temp%\getadmin.vbs" )
+pushd "%CD%"
+CD /D "%~dp0"
+:: BatchGotAdmin (Run as Admin code ends)
+:: Your codes should start from the following line
 ::===============================================================================
 cd /d "%~dp0"
 set Status=Startup
@@ -211,6 +221,7 @@ echo Checking Script Update......
 echo.
 :Github
 Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/Windows.bat" -OutFile "GitHub.bat"
+if not exist GitHub.bat goto :eof
 fc Windows.bat GitHub.bat >nul
 if "%errorlevel%"=="0" del GitHub.bat&goto :eof
 echo Update Available
