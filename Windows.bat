@@ -74,12 +74,12 @@ goto menu
 echo Checking Lasts Python Version ......
 echo.
 set LastsPythonVer=&set PythonURL=&set PythonUpdate=
-for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
-python --version >nul
-if not "%errorlevel%"=="0" set PythonVer=none
 call :ConnectionCheck https://www.python.org/downloads/
 for /f "delims=" %%i in ('Powershell -File getPython.ps1') do set PythonURL=%%i
 for /f "delims=/ tokens=5" %%i in ('echo %PythonURL%') do set LastsPythonVer=%%i
+python --version >nul
+if not "%errorlevel%"=="0" goto DownloadPython
+for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
 if "%PythonVer%"=="%LastsPythonVer%" (
     if "%Status%"=="Check" goto :eof
 	echo No Update Available
@@ -88,7 +88,6 @@ if "%PythonVer%"=="%LastsPythonVer%" (
 	) else ( 
 	if "%Status%"=="Check" set PythonUpdate=Update Available&goto :eof
 	)
-if "%PythonVer%"=="none" goto DownloadPython
 echo Update Available
 echo Current Version : %PythonVer%
 echo Lasts Version : %LastsPythonVer%
