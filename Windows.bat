@@ -165,6 +165,7 @@ goto :eof
 echo Installing Requirements ......
 echo.
 python -m pip install --upgrade pip
+python -m pip install setuptools
 pip install -r requirements.txt
 python setup.py build
 python setup.py install
