@@ -116,7 +116,7 @@ goto :eof
 echo Checking Lasts Miner Version ......
 echo.
 set MinerVer=none&set GitHubVer=&set MinerUpdate=
-if not exist .\TwitchChannelPointsMiner\__init__.py if "%Status%"=="Check" (set MinerUpdate=Update Available&goto :eof) else (goto DownloadMiner)
+if not exist .\TwitchChannelPointsMiner\__init__.py if "%Status%"=="Check" (set MinerUpdate=[Update Available]&goto :eof) else (goto DownloadMiner)
 for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set MinerVer=%%i
 call :ConnectionCheck https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/
 for /f "tokens=3" %%i in ('Powershell "Invoke-RestMethod -Uri https://api.github.com/repos/rdavydov/Twitch-Channel-Points-Miner-v2/releases/latest|Select tag_name|Format-List"') do set GitHubVer=%%i
