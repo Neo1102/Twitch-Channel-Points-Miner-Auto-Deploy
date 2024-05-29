@@ -86,7 +86,7 @@ if "%PythonVer%"=="%LastsPythonVer%" (
 	timeout 3
     goto :eof
 	) else ( 
-	if "%Status%"=="Check" set PythonUpdate=Update Available&goto :eof
+	if "%Status%"=="Check" set PythonUpdate=[Update Available]&goto :eof
 	)
 echo Update Available
 echo Current Version : %PythonVer%
@@ -126,7 +126,7 @@ if "%MinerVer%"=="%GitHubVer%" (
 	timeout 3
     goto :eof
 	) else ( 
-	if "%Status%"=="Check" set MinerUpdate=Update Available&goto :eof
+	if "%Status%"=="Check" set MinerUpdate=[Update Available]&goto :eof
 	)
 echo Update Available
 echo Current  Version : %MinerVer%
