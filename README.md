@@ -1,7 +1,7 @@
 # Twitch-Channel-Points-Miner-Auto-Deploy
 下載Windows.bat執行即可, 其餘檔案若有需求腳本會自動下載
 
-若Python或Miner後面的版本為none 請先執行 (1)Download Python/(2)Miner Program
+首次執行腳本會自動下載並安裝Python與Miner
 
 執行Download Miner Program會順便Install Requirements
 
