@@ -6,9 +6,9 @@ REM --> Check for permissions
 REM --> If error flag set, we do not have admin.
 if "%errorlevel%"=="0" goto gotAdmin
 echo Requesting administrative privileges...
-if not exist sudo.exe Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/sudo.exe" -OutFile "sudo.exe"
+::if not exist sudo.exe Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/sudo.exe" -OutFile "sudo.exe"
 sudo /?|findstr /i "gsudo" >nul
-if "%errorlevel%"=="0" sudo.exe "%~s0" & exit /B
+if "%errorlevel%"=="1" (winget install gerardog.gsudo) else if "%errorlevel%"=="0" (sudo.exe "%~s0" & exit /B)
 echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
 echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\getadmin.vbs"
 "%temp%\getadmin.vbs"
@@ -29,7 +29,6 @@ set Startup="%AppData%\Microsoft\Windows\Start Menu\Programs\Startup"
 Powershell "if ((Get-ExecutionPolicy -List | Where-Object {$_.Scope -eq \"LocalMachine\"}).ExecutionPolicy -ne \"RemoteSigned\") { Set-ExecutionPolicy -ExecutionPolicy RemoteSigned }"
 if not exist Auto.bat echo set Auto=False>Auto.bat
 if exist ScriptUpdate.bat del ScriptUpdate.bat
-if not exist getPython.ps1  Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/getPython.ps1" -OutFile "getPython.ps1"
 set Status=Check
 call :Check_Script_Update
 call :Python
@@ -75,7 +74,7 @@ echo Checking Lasts Python Version ......
 echo.
 set LastsPythonVer=&set PythonURL=&set PythonUpdate=
 call :ConnectionCheck https://www.python.org/downloads/
-for /f "delims=" %%i in ('Powershell -File getPython.ps1') do set PythonURL=%%i
+for /f "delims=" %%i in ('Powershell -EncodedCommand JABjAG8AbgB0AGUAbgB0ACAAPQAgACgASQBuAHYAbwBrAGUALQBXAGUAYgBSAGUAcQB1AGUAcwB0ACAALQBVAHIAaQAgACIAaAB0AHQAcABzADoALwAvAHcAdwB3AC4AcAB5AHQAaABvAG4ALgBvAHIAZwAvAGQAbwB3AG4AbABvAGEAZABzAC8AIgApAC4AQwBvAG4AdABlAG4AdAANAAoAJAB1AHIAbABQAGEAdAB0AGUAcgBuACAAPQAgACcAaAByAGUAZgA9ACIAKABoAHQAdABwAHMAOgAvAC8AdwB3AHcALgBwAHkAdABoAG8AbgAuAG8AcgBnAFsAXgAiAF0AKwBcAC4AZQB4AGUAKQAiACcADQAKACQAcgBlAGcAZQB4ACAAPQAgAFsAcgBlAGcAZQB4AF0AOgA6AG4AZQB3ACgAJAB1AHIAbABQAGEAdAB0AGUAcgBuACkADQAKACQAbQBhAHQAYwBoACAAPQAgACQAcgBlAGcAZQB4AC4ATQBhAHQAYwBoACgAJABjAG8AbgB0AGUAbgB0ACkADQAKAGkAZgAgACgAJABtAGEAdABjAGgALgBTAHUAYwBjAGUAcwBzACkAIAB7AA0ACgAgACAAIAAgACQAZABvAHcAbgBsAG8AYQBkAFUAcgBsACAAPQAgACQAbQBhAHQAYwBoAC4ARwByAG8AdQBwAHMAWwAxAF0ALgBWAGEAbAB1AGUADQAKAAkAVwByAGkAdABlAC0ASABvAHMAdAAgACQAZABvAHcAbgBsAG8AYQBkAFUAcgBsAA0ACgB9AA==') do set PythonURL=%%i
 for /f "delims=/ tokens=5" %%i in ('echo %PythonURL%') do set LastsPythonVer=%%i
 python --version >nul
 if not "%errorlevel%"=="0" goto DownloadPython
