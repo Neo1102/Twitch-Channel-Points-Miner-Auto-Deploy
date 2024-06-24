@@ -3,7 +3,6 @@
 REM --> If error flag set, we do not have admin.
 if '%errorlevel%' EQU '0' goto gotAdmin
 echo Requesting administrative privileges...
-goto UACPrompt
 :UACPrompt
 sudo /?|findstr /i "gsudo" >nul
 if "%errorlevel%"=="0" sudo.exe "%~s0" & exit /B
