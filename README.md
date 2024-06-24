@@ -24,3 +24,7 @@ https://notepad-plus-plus.org/downloads/
 建議使用WindowsTerminal, 並且將它設為預設終端機, 相容性更好
 https://apps.microsoft.com/store/detail/windows-terminal/9N0DX20HK701?hl=zh-tw&gl=tw
 ![image](https://github.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/assets/22034115/4829b2d5-de3f-4b78-a667-ac9b4c342541)
+
+以上兩個tool，可以使用choco來安裝
+choco install notepadplusplus
+choco install microsoft-windows-terminal
