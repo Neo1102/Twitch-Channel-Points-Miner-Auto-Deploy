@@ -1,9 +1,12 @@
 @echo off
+cls
+:: BatchGotAdmin (Run as Admin code starts)
+REM --> Check for permissions
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 REM --> If error flag set, we do not have admin.
-if '%errorlevel%' EQU '0' goto gotAdmin
+if "%errorlevel%"=="0" goto gotAdmin
 echo Requesting administrative privileges...
-:UACPrompt
+if not exist sudo.exe Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/sudo.exe" -OutFile "sudo.exe"
 sudo /?|findstr /i "gsudo" >nul
 if "%errorlevel%"=="0" sudo.exe "%~s0" & exit /B
 echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
@@ -18,24 +21,15 @@ CD /D "%~dp0"
 :: Your codes should start from the following line
 ::===============================================================================
 cd /d "%~dp0"
-choco -v >nul
-if not "%errorlevel%"=="0" (
-  Powershell -EncodedCommand UwBlAHQALQBFAHgAZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBGAG8AcgBjAGUADQAKAFsAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAZQByAHYAaQBjAGUAUABvAGkAbgB0AE0AYQBuAGEAZwBlAHIAXQA6ADoAUwBlAGMAdQByAGkAdAB5AFAAcgBvAHQAbwBjAG8AbAAgAD0AIABbAFMAeQBzAHQAZQBtAC4ATgBlAHQALgBTAGUAcgB2AGkAYwBlAFAAbwBpAG4AdABNAGEAbgBhAGcAZQByAF0AOgA6AFMAZQBjAHUAcgBpAHQAeQBQAHIAbwB0AG8AYwBvAGwAIAAtAGIAbwByACAAMwAwADcAMgANAAoAaQBlAHgAIAAoACgATgBlAHcALQBPAGIAagBlAGMAdAAgAFMAeQBzAHQAZQBtAC4ATgBlAHQALgBXAGUAYgBDAGwAaQBlAG4AdAApAC4ARABvAHcAbgBsAG8AYQBkAFMAdAByAGkAbgBnACgAJwBoAHQAdABwAHMAOgAvAC8AYwBvAG0AbQB1AG4AaQB0AHkALgBjAGgAbwBjAG8AbABhAHQAZQB5AC4AbwByAGcALwBpAG4AcwB0AGEAbABsAC4AcABzADEAJwApACkA
-  call C:\ProgramData\chocolatey\bin\RefreshEnv.cmd
-)
-choco outdated --limit-output|findstr /i chocolatey >nul
-if "%errorlevel%"=="0" choco update chocolatey -y
-choco outdated --limit-output|findstr /i sudo >nul
-if "%errorlevel%"=="0" choco upgrade sudo -y
-call C:\ProgramData\chocolatey\bin\RefreshEnv.cmd
 set Status=Startup
 setlocal enabledelayedexpansion
-set Startup="%AppData%\Microsoft\Windows\Start Menu\Programs\Startup"
 title Twitch Channel Points Miner v2
 call :ConnectionCheck https://www.twitch.tv/
+set Startup="%AppData%\Microsoft\Windows\Start Menu\Programs\Startup"
 Powershell "if ((Get-ExecutionPolicy -List | Where-Object {$_.Scope -eq \"LocalMachine\"}).ExecutionPolicy -ne \"RemoteSigned\") { Set-ExecutionPolicy -ExecutionPolicy RemoteSigned }"
 if not exist Auto.bat echo set Auto=False>Auto.bat
 if exist ScriptUpdate.bat del ScriptUpdate.bat
+if not exist getPython.ps1  Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/getPython.ps1" -OutFile "getPython.ps1"
 set Status=Check
 call :Check_Script_Update
 call :Python
@@ -79,11 +73,13 @@ goto menu
 :Python
 echo Checking Lasts Python Version ......
 echo.
-set LastsPythonVer=&set PythonUpdate=
+set LastsPythonVer=&set PythonURL=&set PythonUpdate=
+call :ConnectionCheck https://www.python.org/downloads/
+for /f "delims=" %%i in ('Powershell -File getPython.ps1') do set PythonURL=%%i
+for /f "delims=/ tokens=5" %%i in ('echo %PythonURL%') do set LastsPythonVer=%%i
 python --version >nul
 if not "%errorlevel%"=="0" goto DownloadPython
 for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
-for /f "delims=^| tokens=1,2,3" %%i in ('choco outdated --limit-output^|findstr /i python') do set LastsPythonVer=%%k
 if "%PythonVer%"=="%LastsPythonVer%" (
     if "%Status%"=="Check" goto :eof
 	echo No Update Available
@@ -98,12 +94,21 @@ echo Lasts Version : %LastsPythonVer%
 choice /M:"Do you want to update Python?"
 if "%errorlevel%"=="2" set PyUpdate=[Update Available]&goto :eof
 :DownloadPython
-choco upgrade python -y
-call C:\ProgramData\chocolatey\bin\RefreshEnv.cmd
+echo Downloading Python %LastsPythonVer% Installer ......
+echo.
+cd /d "%Temp%"
+Powershell wget -Uri "%PythonURL%" -OutFile "python.exe"
+echo Installing Python %LastsPythonVer% ......
+if exist python.exe python.exe /passive InstallAllUsers=1 AppendPath=1 PrependPath=1
+echo Cleaning File ......
+echo.
+del /q python.exe
+cd /d "%~dp0"
+if not exist RefreshEnv.cmd Powershell wget -Uri "https://raw.githubusercontent.com/chocolatey/choco/master/src/chocolatey.resources/redirects/RefreshEnv.cmd" -OutFile "RefreshEnv.cmd"
+call RefreshEnv.cmd
 for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
 call :Requirements
 pause
-set PyUpdate=
 goto :eof
 
 
@@ -128,7 +133,7 @@ echo Current  Version : %MinerVer%
 echo Lasts Version : %GitHubVer%
 echo.
 choice /M:"Do you want to update Miner program?"
-if "%errorlevel%"=="2" set MinerUpdate=[Update Available]&goto :eof
+if "%errorlevel%"=="2" goto :eof
 :DownloadMiner
 echo Downloading Lasts Miner Program ......
 cd /d "%Temp%"
@@ -154,7 +159,6 @@ if not "%MinerVer%"=="%GitHubVer%" (
 	   pause
 	   )
 for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set MinerVer=%%i
-set MinerUpdate=
 goto :eof
 
 :Requirements
