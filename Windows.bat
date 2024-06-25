@@ -79,14 +79,11 @@ for /f "delims=/ tokens=5" %%i in ('echo %PythonURL%') do set LastsPythonVer=%%i
 python --version >nul
 if not "%errorlevel%"=="0" goto DownloadPython
 for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
-if "%PythonVer%"=="%LastsPythonVer%" (
-    if "%Status%"=="Check" goto :eof
-	echo No Update Available
-	timeout 3
-    goto :eof
-	) else ( 
-	if "%Status%"=="Check" set PyUpdate=[Update Available]&goto :eof
-	)
+if not "%PythonVer%"=="%LastsPythonVer%" if "%Status%"=="Check" set PyUpdate=[Update Available]
+if "%Status%"=="Check" goto :eof
+echo No Update Available
+timeout 3
+goto :eof
 echo Update Available
 echo Current Version : %PythonVer%
 echo Lasts Version : %LastsPythonVer%
@@ -119,7 +116,7 @@ if not exist .\TwitchChannelPointsMiner\__init__.py if "%Status%"=="Check" (set 
 for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set MinerVer=%%i
 call :ConnectionCheck https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/
 for /f tokens^=2^ delims^=^" %%i in ('Powershell wget -Uri "https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/raw/master/TwitchChannelPointsMiner/__init__.py"^|findstr /i __version__') do set GitHubVer=%%i
-if not "%MinerVer%"=="%GitHubVer%" if "%Status%"=="Check" set MinerUpdate=[Update Available]&goto :eof
+if not "%MinerVer%"=="%GitHubVer%" if "%Status%"=="Check" set MinerUpdate=[Update Available]
 if "%Status%"=="Check" goto :eof
 echo No Update Available
 choice /M:"Do you want to download the main program again?"
