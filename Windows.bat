@@ -8,7 +8,7 @@ if "%errorlevel%"=="0" goto gotAdmin
 echo Requesting administrative privileges...
 ::if not exist sudo.exe Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/sudo.exe" -OutFile "sudo.exe"
 sudo /?|findstr /i "gsudo" >nul
-if "%errorlevel%"=="1" (winget install gerardog.gsudo) else if "%errorlevel%"=="0" (sudo.exe "%~s0" & exit /B)
+if "%errorlevel%"=="1" (winget install gerardog.gsudo --accept-source-agreements) else if "%errorlevel%"=="0" (sudo.exe "%~s0" & exit /B)
 echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
 echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\getadmin.vbs"
 "%temp%\getadmin.vbs"
