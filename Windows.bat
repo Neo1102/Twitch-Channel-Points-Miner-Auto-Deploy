@@ -107,7 +107,7 @@ if not exist RefreshEnv.cmd Powershell wget -Uri "https://raw.githubusercontent.
 call RefreshEnv.cmd
 for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
 call :Requirements
-pause
+if not "%Status%"=="Check" pause
 goto :eof
 
 
@@ -149,14 +149,12 @@ del /q /s master.zip Twitch-Channel-Points-Miner-v2-master
 rmdir /q /s Twitch-Channel-Points-Miner-v2-master
 cd /d "%~dp0"
 call :Requirements
-if not "%MinerVer%"=="%GitHubVer%" (
-       echo.
-       echo There may be differences between the new and old versions.
-	   echo Please manually check if run.py matches the format of the new example.py.
-	   echo Make necessary modifications manually if needed.
-	   echo.
-	   pause
-	   )
+echo.
+echo There may be differences between the new and old versions.
+echo Please manually check if run.py matches the format of the new example.py.
+echo Make necessary modifications manually if needed.
+echo.
+if not "%Status%"=="Check" pause
 for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set MinerVer=%%i
 goto :eof
 
