@@ -8,7 +8,7 @@ if "%errorlevel%"=="0" goto gotAdmin
 echo Requesting administrative privileges...
 ::if not exist sudo.exe Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/sudo.exe" -OutFile "sudo.exe"
 sudo /?|findstr /i "gsudo" >nul
-if "%errorlevel%"=="1" (winget install gerardog.gsudo --accept-source-agreements) else if "%errorlevel%"=="0" (sudo.exe "%~s0" & exit /B)
+if "%errorlevel%"=="1" (winget install gerardog.gsudo) else if "%errorlevel%"=="0" (sudo.exe "%~s0" & exit /B)
 echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
 echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\getadmin.vbs"
 "%temp%\getadmin.vbs"
@@ -118,15 +118,13 @@ set MinerVer=none&set GitHubVer=&set MinerUpdate=
 if not exist .\TwitchChannelPointsMiner\__init__.py if "%Status%"=="Check" (set MinerUpdate=[Update Available]&goto :eof) else (goto DownloadMiner)
 for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set MinerVer=%%i
 call :ConnectionCheck https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/
-for /f "tokens=3" %%i in ('Powershell "Invoke-RestMethod -Uri https://api.github.com/repos/rdavydov/Twitch-Channel-Points-Miner-v2/releases/latest|Select tag_name|Format-List"') do set GitHubVer=%%i
-if "%MinerVer%"=="%GitHubVer%" (
-    if "%Status%"=="Check" goto :eof
-	echo No Update Available
-	timeout 3
-    goto :eof
-	) else ( 
-	if "%Status%"=="Check" set MinerUpdate=[Update Available]&goto :eof
-	)
+for /f tokens^=2^ delims^=^" %%i in ('Powershell wget -Uri "https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/raw/master/TwitchChannelPointsMiner/__init__.py"^|findstr /i __version__') do set GitHubVer=%%i
+if not "%MinerVer%"=="%GitHubVer%" if "%Status%"=="Check" set MinerUpdate=[Update Available]&goto :eof
+if "%Status%"=="Check" goto :eof
+echo No Update Available
+choice /M:"Do you want to download the main program again?"
+if "%errorlevel%"=="1" goto DownloadMiner
+if "%errorlevel%"=="2" goto :eof
 echo Update Available
 echo Current  Version : %MinerVer%
 echo Lasts Version : %GitHubVer%
@@ -148,6 +146,8 @@ echo.
 del /q /s master.zip Twitch-Channel-Points-Miner-v2-master
 rmdir /q /s Twitch-Channel-Points-Miner-v2-master
 cd /d "%~dp0"
+if exist sudo.exe del sudo.exe
+if exist getPython.ps1 del getPython.ps1
 call :Requirements
 echo.
 echo There may be differences between the new and old versions.
