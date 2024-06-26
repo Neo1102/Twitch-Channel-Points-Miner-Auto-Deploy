@@ -106,6 +106,7 @@ if not exist RefreshEnv.cmd Powershell wget -Uri "https://raw.githubusercontent.
 call RefreshEnv.cmd
 for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
 call :Requirements
+set PyUpdate=
 if not "%Status%"=="Check" pause
 goto :eof
 
