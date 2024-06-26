@@ -80,7 +80,6 @@ python --version >nul
 if not "%errorlevel%"=="0" goto DownloadPython
 for /f "tokens=2" %%i in ('python --version^|findstr /i "Python"') do set PythonVer=%%i
 if "%PythonVer%"=="%LastsPythonVer%" (
-  set PyUpdate=
   if "%Status%"=="Check" goto :eof
   echo No Update Available
   timeout 3
@@ -122,7 +121,6 @@ for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPoints
 call :ConnectionCheck https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/
 for /f tokens^=2^ delims^=^" %%i in ('Powershell wget -Uri "https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/raw/master/TwitchChannelPointsMiner/__init__.py"^|findstr /i __version__') do set GitHubVer=%%i
 if "%MinerVer%"=="%GitHubVer%" (
-  set MinerUpdate=
   if "%Status%"=="Check" goto :eof
   echo No Update Available
   set Msg=Do you want to download the main program again?
