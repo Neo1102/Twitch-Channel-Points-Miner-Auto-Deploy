@@ -86,12 +86,12 @@ if "%PythonVer%"=="%LastsPythonVer%" (
   goto :eof
   )
 set PyUpdate=[Update Available]
-if "%Status%"=="Check" &goto :eof
+if "%Status%"=="Check" goto :eof
 echo Update Available
 echo Current Version : %PythonVer%
 echo Lasts Version : %LastsPythonVer%
 choice /M:"Do you want to update Python?"
-if "%errorlevel%"=="2" &goto :eof
+if "%errorlevel%"=="2" goto :eof
 :DownloadPython
 echo Downloading Python %LastsPythonVer% Installer ......
 echo.
