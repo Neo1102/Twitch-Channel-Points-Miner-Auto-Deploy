@@ -67,7 +67,7 @@ if "%errorlevel%"=="4" call :Edit
 if "%errorlevel%"=="3" call :Requirements
 if "%errorlevel%"=="2" call :Miner
 if "%errorlevel%"=="1" call :Python
-goto menu
+goto Menu
 
 :Python
 echo Checking Lasts Python Version ......
