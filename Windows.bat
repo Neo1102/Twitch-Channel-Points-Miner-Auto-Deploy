@@ -164,6 +164,7 @@ set MinerUpdate=
 goto :eof
 
 :Requirements
+if not exist .\requirements.txt goto :eof
 echo Installing Requirements ......
 echo.
 python -m pip install --upgrade pip
