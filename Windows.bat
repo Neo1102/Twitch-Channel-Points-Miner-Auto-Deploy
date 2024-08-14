@@ -36,10 +36,10 @@ call :Miner
 ::winget list > List.txt
 ::findstr /i "Microsoft.WindowsTerminal" List.txt >nul
 ::if not "%errorlevel%"=="0" winget install Microsoft.WindowsTerminal --accept-source-agreements >nul
-winget install Microsoft.WindowsTerminal --accept-source-agreements >nul
+winget install Microsoft.WindowsTerminal --accept-source-agreements
 ::findstr /i /C:"Notepad++ (64-bit x64)" List.txt >nul
 ::if not "%errorlevel%"=="0" winget install Notepad++.Notepad++ --accept-source-agreements >nul
-winget install Notepad++.Notepad++ --accept-source-agreements >nul
+winget install Notepad++.Notepad++ --accept-source-agreements
 ::del /q List.txt
 
 :Menu
