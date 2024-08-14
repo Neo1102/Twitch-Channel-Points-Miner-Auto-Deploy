@@ -33,12 +33,14 @@ set Status=Check
 call :Check_Script_Update
 call :Python
 call :Miner
-winget list > List.txt
-findstr /i "Microsoft.WindowsTerminal" List.txt >nul
-if not "%errorlevel%"=="0" winget install Microsoft.WindowsTerminal --accept-source-agreements >nul
-findstr /i /C:"Notepad++ (64-bit x64)" List.txt >nul
-if not "%errorlevel%"=="0" winget install Notepad++.Notepad++ --accept-source-agreements >nul
-del /q List.txt
+::winget list > List.txt
+::findstr /i "Microsoft.WindowsTerminal" List.txt >nul
+::if not "%errorlevel%"=="0" winget install Microsoft.WindowsTerminal --accept-source-agreements >nul
+winget install Microsoft.WindowsTerminal --accept-source-agreements >nul
+::findstr /i /C:"Notepad++ (64-bit x64)" List.txt >nul
+::if not "%errorlevel%"=="0" winget install Notepad++.Notepad++ --accept-source-agreements >nul
+winget install Notepad++.Notepad++ --accept-source-agreements >nul
+::del /q List.txt
 
 :Menu
 cd /d "%~dp0"
