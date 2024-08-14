@@ -7,8 +7,7 @@ REM --> If error flag set, we do not have admin.
 if "%errorlevel%"=="0" goto gotAdmin
 echo Requesting administrative privileges...
 ::if not exist sudo.exe Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/sudo.exe" -OutFile "sudo.exe"
-sudo /?|findstr /i "gsudo" >nul
-if "%errorlevel%"=="1" (winget install gerardog.gsudo --accept-source-agreements) else if "%errorlevel%"=="0" (sudo.exe "%~s0" & exit /B)
+if exist sudo.exe sudo.exe "%~s0" & exit /B
 echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
 echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\getadmin.vbs"
 "%temp%\getadmin.vbs"
@@ -34,6 +33,8 @@ call :Check_Script_Update
 call :Python
 call :Miner
 winget list --accept-source-agreements > List.txt
+findstr /i "gsudo" List.txt >nul
+if not "%errorlevel%"=="0" winget install gerardog.gsudo --accept-source-agreements >nul
 findstr /i "Microsoft.WindowsTerminal" List.txt >nul
 if not "%errorlevel%"=="0" winget install Microsoft.WindowsTerminal --accept-source-agreements >nul
 findstr /i /C:"Notepad++ (64-bit x64)" List.txt >nul
