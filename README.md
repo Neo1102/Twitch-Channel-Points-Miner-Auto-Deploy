@@ -25,8 +25,13 @@ https://notepad-plus-plus.org/downloads/
 https://apps.microsoft.com/store/detail/windows-terminal/9N0DX20HK701?hl=zh-tw&gl=tw
 ![image](https://github.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/assets/22034115/4829b2d5-de3f-4b78-a667-ac9b4c342541)
 
-以上兩個tool，可以使用choco來安裝
 
-choco install notepadplusplus
+已知問題
+在較舊的Windows上可會遇到以下錯誤：
+wget : 無法剖析回應內容，因為 Internet Explorer 引擎無法使用，或者 Internet Explorer 的第一次啟動設定尚未完成。請指定 U seBasicParsing 參數，然後再試一次。
+解法：打開IE，選擇 [使用建議的安全性、隱私權雨相容性設定]
+https://blog.darkthread.net/blog/invoke-webrequest-ie-error/
 
-choco install microsoft-windows-terminal
+系統內未安裝winget，會造成Crash
+解法：手動安裝winget，用Powershell執行  irm https://github.com/asheroto/winget-install/releases/latest/download/winget-install.ps1 | iex
+
