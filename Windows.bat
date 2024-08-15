@@ -1,15 +1,18 @@
 @echo off
 cls
+set Terminal=cmd.exe
+Powershell "Get-AppxPackage|Where Name -like '*Terminal*'"|findstr /i "Microsoft.WindowsTerminal" >nul
+if "%errorlevel%"=="0" set Terminal=wt.exe
 :: BatchGotAdmin (Run as Admin code starts)
 REM --> Check for permissions
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 REM --> If error flag set, we do not have admin.
-if "%errorlevel%"=="0" goto gotAdmin
+if '%errorlevel%' EQU '0' goto gotAdmin
 echo Requesting administrative privileges...
-if not exist sudo.exe Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/sudo.exe" -OutFile "sudo.exe"
-sudo.exe "%~s0" & exit /B
+goto UACPrompt
+:UACPrompt
 echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
-echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\getadmin.vbs"
+echo UAC.ShellExecute "%Terminal%", "cmd /c %~s0", "", "runas", 1 >> "%temp%\getadmin.vbs"
 "%temp%\getadmin.vbs"
 exit /B
 :gotAdmin
