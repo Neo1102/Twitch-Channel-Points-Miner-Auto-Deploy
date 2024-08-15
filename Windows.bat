@@ -11,6 +11,8 @@ if '%errorlevel%' EQU '0' goto gotAdmin
 echo Requesting administrative privileges...
 goto UACPrompt
 :UACPrompt
+if exist "C:\Program Files (x86)\gsudo\Current\gsudo.exe" sudo.exe "%~s0" & exit /B
+if exist "C:\Program Files\gsudo\Current\gsudo.exe" sudo.exe "%~s0" & exit /B
 echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
 echo UAC.ShellExecute "%Terminal%", "cmd /c %~s0", "", "runas", 1 >> "%temp%\getadmin.vbs"
 "%temp%\getadmin.vbs"
