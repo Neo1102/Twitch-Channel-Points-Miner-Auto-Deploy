@@ -37,7 +37,7 @@ set Status=Check
 call :Check_Script_Update
 call :Python
 call :Miner
-Powershell "Get-AppxPackage|Select Name"|findstr /i AppInstaller
+Powershell "Get-AppxPackage|Select Name"|findstr /i AppInstaller >nul
 if not "%errorlevel%"=="0" start "" /wait Powershell -command "irm https://github.com/asheroto/winget-install/releases/latest/download/winget-install.ps1 | iex"
 winget list --accept-source-agreements > List.txt
 findstr /i "gsudo" List.txt >nul
