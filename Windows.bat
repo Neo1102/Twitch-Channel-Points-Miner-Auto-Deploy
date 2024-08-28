@@ -1,26 +1,26 @@
 @echo off
-cls
+>nul 2>&1 fsutil dirty query %systemdrive% && (goto gotAdmin) || (goto Elevate_privileges)
+:Elevate_privileges
+:: Determine if Windows Terminal is installed.
 set Terminal=cmd.exe
 Powershell "Get-AppxPackage|Where Name -like '*Terminal*'"|findstr /i "Microsoft.WindowsTerminal" >nul
 if "%errorlevel%"=="0" set Terminal=wt.exe
-:: BatchGotAdmin (Run as Admin code starts)
-REM --> Check for permissions
->nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
-REM --> If error flag set, we do not have admin.
-if '%errorlevel%' EQU '0' goto gotAdmin
-echo Requesting administrative privileges...
-goto UACPrompt
-:UACPrompt
+:: If gsudo is installed, use it.
 if exist "C:\Program Files (x86)\gsudo\Current\gsudo.exe" sudo "%~s0" & exit /B
 if exist "C:\Program Files\gsudo\Current\gsudo.exe" sudo "%~s0" & exit /B
-echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
-echo UAC.ShellExecute "%Terminal%", "cmd /c %~s0", "", "runas", 1 >> "%temp%\getadmin.vbs"
-"%temp%\getadmin.vbs"
-exit /B
+:: If Windows Terminal is installed, use it.
+if exist "%SYSTEMROOT%\System32\Cscript.exe" (
+    echo Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "%Terminal%", "cmd /c %~s0", "", "runas", 1 > "%temp%\getadmin.vbs"
+    cscript //nologo "%temp%\getadmin.vbs"
+    exit /b
+) else (
+    powershell -Command "Start-Process -Verb RunAs -FilePath '%Terminal%' -ArgumentList 'cmd /c %~s0'"
+    exit /b
+)
 :gotAdmin
-if exist "%temp%\getadmin.vbs" ( del "%temp%\getadmin.vbs" )
-pushd "%CD%"
-CD /D "%~dp0"
+if exist "%temp%\getadmin.vbs" del "%temp%\getadmin.vbs"
+pushd "%CD%" && CD /D "%~dp0"
+cls
 :: BatchGotAdmin (Run as Admin code ends)
 :: Your codes should start from the following line
 ::===============================================================================
