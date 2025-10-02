@@ -181,6 +181,8 @@ goto :eof
 if not exist .\requirements.txt goto :eof
 echo Installing Requirements ......
 echo.
+Powershell wget -Uri "https://bootstrap.pypa.io/get-pip.py" -OutFile "get-pip.py"
+python get-pip.py
 python -m pip install --upgrade pip
 python -m pip install setuptools
 pip install -r requirements.txt
@@ -253,3 +255,4 @@ echo start "" /D "%~dp0" %~nx0>>ScriptUpdate.bat
 echo exit>>ScriptUpdate.bat
 start ScriptUpdate.bat
 exit
+
