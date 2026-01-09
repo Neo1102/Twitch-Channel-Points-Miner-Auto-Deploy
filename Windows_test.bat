@@ -1,4 +1,4 @@
-echo off
+@echo off
 >nul 2>&1 fsutil dirty query %systemdrive% && (goto gotAdmin) || (goto Elevate_privileges)
 :Elevate_privileges
 :: Determine if Windows Terminal is installed.
@@ -28,51 +28,36 @@ if not exist Auto.bat echo set Auto=False>Auto.bat
 Powershell wget -Uri "https://raw.githubusercontent.com/chocolatey/choco/master/src/chocolatey.resources/redirects/RefreshEnv.cmd" -OutFile "RefreshEnv.cmd"
 Powershell "if ((Get-ExecutionPolicy -List | Where-Object {$_.Scope -eq \"LocalMachine\"}).ExecutionPolicy -ne \"RemoteSigned\") { Set-ExecutionPolicy -ExecutionPolicy RemoteSigned }"
 Powershell "Get-AppxPackage|Select Name"|findstr /i AppInstaller >nul
-if not "%errorlevel%"=="0" (
-   echo Installing Winget ......
-   start "" /wait Powershell -command "irm https://github.com/asheroto/winget-install/releases/latest/download/winget-install.ps1 | iex"
-   ) else (
-   winget upgrade Microsoft.AppInstaller --source winget --silent --accept-source-agreements --accept-package-agreements
-   )
+if "%errorlevel%"=="0" (
+		winget upgrade Microsoft.AppInstaller --silent --accept-source-agreements --accept-package-agreements
+	) else (
+		start "" /wait Powershell -command "irm https://github.com/asheroto/winget-install/releases/latest/download/winget-install.ps1 | iex"
+	)
 Powershell -command "irm https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/refs/heads/main/winget_optimize.ps1 | iex"
 winget list --accept-source-agreements > List.txt
 findstr /i "Python.PythonInstallManager " List.txt >nul
-if not "%errorlevel%"=="0" (
-   echo Installing Python Install Manager ......
-   winget install Python.PythonInstallManager --source winget --silent --accept-source-agreements --accept-package-agreements
-   ) else (
-   winget upgrade Python.PythonInstallManager --source winget --silent --accept-source-agreements --accept-package-agreements
-   )
+if "%errorlevel%"=="0" ( set Action=upgrade ) else ( set Action=install )
+winget %Action% Python.PythonInstallManager --silent --accept-source-agreements --accept-package-agreements
+
 findstr /i "Git.Git " List.txt >nul
-if not "%errorlevel%"=="0" (
-   echo Installing Git ......
-   winget install Git.Git --source winget --silent --accept-source-agreements --accept-package-agreements
-   ) else (
-   winget upgrade Git.Git --source winget --silent --accept-source-agreements --accept-package-agreements
-   )
+if "%errorlevel%"=="0" ( set Action=upgrade ) else ( set Action=install )
+winget %Action% Git.Git --silent --accept-source-agreements --accept-package-agreements
+   
 findstr /i "gsudo" List.txt >nul
-if not "%errorlevel%"=="0" (
-   echo Installing gsudo ......
-   winget install gerardog.gsudo --source winget --silent --accept-source-agreements --accept-package-agreements
-   sudo config --enable normal
-   ) else (
-   winget upgrade gerardog.gsudo --source winget --silent --accept-source-agreements --accept-package-agreements
-   sudo config --enable normal
-   )
+if "%errorlevel%"=="0" ( set Action=upgrade ) else ( set Action=install )
+winget %Action% gerardog.gsudo --silent --accept-source-agreements --accept-package-agreements
+sudo config --enable normal
+
 findstr /i "Microsoft.WindowsTerminal" List.txt >nul
-if not "%errorlevel%"=="0" (
-   echo Installing Windows Terminal ......
-   winget install Microsoft.WindowsTerminal --source winget --silent --accept-source-agreements --accept-package-agreements
-   ) else (
-   winget upgrade Microsoft.WindowsTerminal --source winget --silent --accept-source-agreements --accept-package-agreements
-   )
+if "%errorlevel%"=="0" ( set Action=upgrade ) else ( set Action=install )
+winget %Action% Microsoft.WindowsTerminal --silent --accept-source-agreements --accept-package-agreements
+REG ADD "HKCU\Console\%%Startup" /V DelegationConsole /T REG_SZ /D "{2EACA947-7F5F-4CFA-BA87-8F7FBEEFBE69}" /F
+REG ADD "HKCU\Console\%%Startup" /V DelegationTerminal /T REG_SZ /D "{E12CFF52-A866-4C77-9A90-F570A7AA2C6B}" /F
+
 findstr /i /C:"Notepad++ (64-bit x64)" List.txt >nul
-if not "%errorlevel%"=="0" (
-   echo Installing Notepad++ ......
-   winget install Notepad++.Notepad++ --source winget --silent --accept-source-agreements --accept-package-agreements
-   ) else (
-   winget upgrade Notepad++.Notepad++ --source winget --silent --accept-source-agreements --accept-package-agreements
-   )
+if "%errorlevel%"=="0" ( set Action=upgrade ) else ( set Action=install )
+winget %Action% Notepad++.Notepad++ --silent --accept-source-agreements --accept-package-agreements
+
 del /q List.txt
 set Status=Check
 call RefreshEnv.cmd
@@ -160,21 +145,21 @@ goto :eof
 echo Checking Lasts Miner Version ......
 echo.
 call :ConnectionCheck https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2/
-set MinerVer=none&set GitHubVer=&set MinerUpdate=
+set MinerVer=none&set LastsMinerVer=&set MinerUpdate=
 if not exist .\TwitchChannelPointsMiner\__init__.py goto DownloadMiner
-for /f "tokens=2" %%i in ('git ls-remote --tags https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2.git') do set GitHubVer=%%i
-set GitHubVer=%GitHubVer:refs/tags/=%
+for /f "tokens=2" %%i in ('git ls-remote --tags https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2.git') do set LastsMinerVer=%%i
+set LastsMinerVer=%LastsMinerVer:refs/tags/=%
 for /f tokens^=2^ delims^=^" %%i in ('findstr /i "version" .\TwitchChannelPointsMiner\__init__.py') do set MinerVer=%%i
-if "%MinerVer%"=="%GitHubVer%" (
+if "%MinerVer%"=="%LastsMinerVer%" (
   if "%Status%"=="Check" goto :eof
   echo No Update Available
   set Msg=Do you still want to re-download the Miner Program no matter what?
   )
-if not "%MinerVer%"=="%GitHubVer%" (
+if not "%MinerVer%"=="%LastsMinerVer%" (
   if "%Status%"=="Check" set MinerUpdate=[Update Available]&goto :eof
   echo Update Available
   echo Current  Version : %MinerVer%
-  echo Lasts Version : %GitHubVer%
+  echo Lasts Version : %LastsMinerVer%
   set Msg=Do you want to update Miner program?
   )
 echo.
@@ -185,7 +170,7 @@ echo Downloading Lasts Miner Program ......
 git clone https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2.git
 echo Moving Master Program ......
 echo.
-xcopy /e /y .\Twitch-Channel-Points-Miner-v2\ "%~dp0"
+robocopy ".\Twitch-Channel-Points-Miner-v2\" "%~dp0" /E /MOV /W:1
 rmdir /q /s Twitch-Channel-Points-Miner-v2
 call :Requirements
 echo.
