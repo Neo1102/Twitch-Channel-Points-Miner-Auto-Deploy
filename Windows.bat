@@ -27,16 +27,17 @@ if exist ScriptUpdate.bat del ScriptUpdate.bat
 if not exist Auto.bat echo set Auto=False>Auto.bat
 set Status=Check
 call :Check_Script_Update
+set UA=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
 Powershell wget -Uri "https://raw.githubusercontent.com/chocolatey/choco/master/src/chocolatey.resources/redirects/RefreshEnv.cmd" -OutFile "RefreshEnv.cmd"
 Powershell "if ((Get-ExecutionPolicy -List | Where-Object {$_.Scope -eq \"LocalMachine\"}).ExecutionPolicy -ne \"RemoteSigned\") { Set-ExecutionPolicy -ExecutionPolicy RemoteSigned }"
 Powershell "if ((Get-WindowsCapability -Online -Name "*WMIC*" | Where-Object State -eq 'NotPresent')) { Add-WindowsCapability -Online -Name "WMIC~~~~" }"
 Powershell "Get-AppxPackage|Select Name"|findstr /i AppInstaller >nul
 if "%errorlevel%"=="0" (
-		Powershell -command "irm https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/refs/heads/main/winget_optimize.ps1 | iex"
+		Powershell -command "irm https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/winget_optimize.ps1 -UserAgent '%UA%'|iex"
 		winget upgrade Microsoft.AppInstaller --source winget --silent --accept-source-agreements --accept-package-agreements
 	) else (
-		start "" /wait Powershell -command "irm https://github.com/asheroto/winget-install/releases/latest/download/winget-install.ps1 | iex"
-		Powershell -command "irm https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/refs/heads/main/winget_optimize.ps1 | iex"
+		start "" /wait Powershell -command "irm https://github.com/asheroto/winget-install/releases/latest/download/winget-install.ps1 -UserAgent '%UA%'|iex"
+		Powershell -command "irm https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/winget_optimize.ps1 -UserAgent '%UA%'|iex"
 	)
 winget list --accept-source-agreements > List.txt
 findstr /i "Python.PythonInstallManager " List.txt >nul
@@ -57,7 +58,7 @@ if "%errorlevel%"=="0" ( set Action=upgrade ) else ( set Action=install )
 winget %Action% Microsoft.WindowsTerminal --silent --accept-source-agreements --accept-package-agreements
 REG ADD "HKCU\Console\%%Startup" /V DelegationConsole /T REG_SZ /D "{2EACA947-7F5F-4CFA-BA87-8F7FBEEFBE69}" /F >nul
 REG ADD "HKCU\Console\%%Startup" /V DelegationTerminal /T REG_SZ /D "{E12CFF52-A866-4C77-9A90-F570A7AA2C6B}" /F >nul
-Powershell -command "irm https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/refs/heads/main/wt_modify.ps1 | iex"
+Powershell -command "irm https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/wt_modify.ps1 -UserAgent '%UA%'|iex"
 
 findstr /i /C:"Notepad++ (64-bit x64)" List.txt >nul
 if "%errorlevel%"=="0" ( set Action=upgrade ) else ( set Action=install )
@@ -252,7 +253,7 @@ goto menu
 echo Checking Script Update......
 echo.
 :Github
-Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/refs/heads/main/Windows.bat" -OutFile "GitHub.bat"
+Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/main/Windows.bat" -OutFile "GitHub.bat"
 if not exist GitHub.bat goto :eof
 fc Windows.bat GitHub.bat >nul
 if "%errorlevel%"=="0" del GitHub.bat&goto :eof
@@ -266,4 +267,3 @@ echo start "" /D "%~dp0" %~nx0>>ScriptUpdate.bat
 echo exit>>ScriptUpdate.bat
 start ScriptUpdate.bat
 exit
-
