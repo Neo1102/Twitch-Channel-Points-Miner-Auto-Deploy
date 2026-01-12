@@ -84,8 +84,8 @@ if "%Auto%"=="True" echo.
 if "%Auto%"=="True" echo    Auto-mining has been enabled.
 if "%Auto%"=="True" echo    Miner will autorun in 5s
 echo.
-echo    (1) Download Python
-echo    (2) Download Miner Program
+echo    (1) Update Python 
+echo    (2) Update Miner Program
 echo    (3) Install Requirements
 echo    (4) Edit Miner Setting
 if "%Auto%"=="True" echo    (5) Disable Auto Mining
@@ -265,3 +265,4 @@ echo start "" /D "%~dp0" %~nx0>>ScriptUpdate.bat
 echo exit>>ScriptUpdate.bat
 start ScriptUpdate.bat
 exit
+
