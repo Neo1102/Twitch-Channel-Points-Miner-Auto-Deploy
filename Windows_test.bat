@@ -27,13 +27,15 @@ if exist ScriptUpdate.bat del ScriptUpdate.bat
 if not exist Auto.bat echo set Auto=False>Auto.bat
 Powershell wget -Uri "https://raw.githubusercontent.com/chocolatey/choco/master/src/chocolatey.resources/redirects/RefreshEnv.cmd" -OutFile "RefreshEnv.cmd"
 Powershell "if ((Get-ExecutionPolicy -List | Where-Object {$_.Scope -eq \"LocalMachine\"}).ExecutionPolicy -ne \"RemoteSigned\") { Set-ExecutionPolicy -ExecutionPolicy RemoteSigned }"
+Powershell Add-WindowsCapability -Online -Name "WMIC~~~~"
 Powershell "Get-AppxPackage|Select Name"|findstr /i AppInstaller >nul
 if "%errorlevel%"=="0" (
-		winget upgrade Microsoft.AppInstaller --silent --accept-source-agreements --accept-package-agreements
+		Powershell -command "irm https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/refs/heads/main/winget_optimize.ps1 | iex"
+		winget upgrade Microsoft.AppInstaller --source winget --silent --accept-source-agreements --accept-package-agreements
 	) else (
 		start "" /wait Powershell -command "irm https://github.com/asheroto/winget-install/releases/latest/download/winget-install.ps1 | iex"
+		Powershell -command "irm https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/refs/heads/main/winget_optimize.ps1 | iex"
 	)
-Powershell -command "irm https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/refs/heads/main/winget_optimize.ps1 | iex"
 winget list --accept-source-agreements > List.txt
 findstr /i "Python.PythonInstallManager " List.txt >nul
 if "%errorlevel%"=="0" ( set Action=upgrade ) else ( set Action=install )
@@ -53,6 +55,7 @@ if "%errorlevel%"=="0" ( set Action=upgrade ) else ( set Action=install )
 winget %Action% Microsoft.WindowsTerminal --silent --accept-source-agreements --accept-package-agreements
 REG ADD "HKCU\Console\%%Startup" /V DelegationConsole /T REG_SZ /D "{2EACA947-7F5F-4CFA-BA87-8F7FBEEFBE69}" /F
 REG ADD "HKCU\Console\%%Startup" /V DelegationTerminal /T REG_SZ /D "{E12CFF52-A866-4C77-9A90-F570A7AA2C6B}" /F
+Powershell -command "irm https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/refs/heads/main/wt_modify.ps1 | iex"
 
 findstr /i /C:"Notepad++ (64-bit x64)" List.txt >nul
 if "%errorlevel%"=="0" ( set Action=upgrade ) else ( set Action=install )
@@ -129,7 +132,7 @@ echo  (2) Yes, uninstall but keeps config files. Reinstall reuses settings.
 echo  (3) Yes, uninstall python and config files for full cleanup.
 choice /c 123
 if "%errorlevel%"=="3" py uninstall -y -purge
-if "%errorlevel%"=="2" py uninstall -y
+if "%errorlevel%"=="2" py uninstall %PythonVer% -y
 :DownloadPython
 py install %LastsPythonVer% -y
 py install --configure
@@ -137,7 +140,7 @@ call RefreshEnv.cmd
 for /f %%i in ('Powershell "(py list -f=json | ConvertFrom-Json).versions[0].'sort-version'"') do set PythonVer=%%i
 call :Requirements
 set PyUpdate=
-if not "%Status%"=="Check" pause
+if not "%Status%"=="Check" timeout 3
 goto :eof
 
 
@@ -170,7 +173,7 @@ echo Downloading Lasts Miner Program ......
 git clone https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2.git
 echo Moving Master Program ......
 echo.
-robocopy ".\Twitch-Channel-Points-Miner-v2\" "%~dp0" /E /MOV /W:1
+robocopy "%~dp0Twitch-Channel-Points-Miner-v2" "." /E /MOV /W:1
 rmdir /q /s Twitch-Channel-Points-Miner-v2
 call :Requirements
 echo.
