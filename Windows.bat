@@ -25,6 +25,8 @@ call :ConnectionCheck https://www.twitch.tv/
 set Startup="%AppData%\Microsoft\Windows\Start Menu\Programs\Startup"
 if exist ScriptUpdate.bat del ScriptUpdate.bat
 if not exist Auto.bat echo set Auto=False>Auto.bat
+set Status=Check
+call :Check_Script_Update
 Powershell wget -Uri "https://raw.githubusercontent.com/chocolatey/choco/master/src/chocolatey.resources/redirects/RefreshEnv.cmd" -OutFile "RefreshEnv.cmd"
 Powershell "if ((Get-ExecutionPolicy -List | Where-Object {$_.Scope -eq \"LocalMachine\"}).ExecutionPolicy -ne \"RemoteSigned\") { Set-ExecutionPolicy -ExecutionPolicy RemoteSigned }"
 Powershell "if ((Get-WindowsCapability -Online -Name "*WMIC*" | Where-Object State -eq 'NotPresent')) { Add-WindowsCapability -Online -Name "WMIC~~~~" }"
@@ -53,8 +55,8 @@ sudo config --enable normal
 findstr /i "Microsoft.WindowsTerminal" List.txt >nul
 if "%errorlevel%"=="0" ( set Action=upgrade ) else ( set Action=install )
 winget %Action% Microsoft.WindowsTerminal --silent --accept-source-agreements --accept-package-agreements
-REG ADD "HKCU\Console\%%Startup" /V DelegationConsole /T REG_SZ /D "{2EACA947-7F5F-4CFA-BA87-8F7FBEEFBE69}" /F
-REG ADD "HKCU\Console\%%Startup" /V DelegationTerminal /T REG_SZ /D "{E12CFF52-A866-4C77-9A90-F570A7AA2C6B}" /F
+REG ADD "HKCU\Console\%%Startup" /V DelegationConsole /T REG_SZ /D "{2EACA947-7F5F-4CFA-BA87-8F7FBEEFBE69}" /F >nul
+REG ADD "HKCU\Console\%%Startup" /V DelegationTerminal /T REG_SZ /D "{E12CFF52-A866-4C77-9A90-F570A7AA2C6B}" /F >nul
 Powershell -command "irm https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/refs/heads/main/wt_modify.ps1 | iex"
 
 findstr /i /C:"Notepad++ (64-bit x64)" List.txt >nul
@@ -62,10 +64,9 @@ if "%errorlevel%"=="0" ( set Action=upgrade ) else ( set Action=install )
 winget %Action% Notepad++.Notepad++ --silent --accept-source-agreements --accept-package-agreements
 
 del /q List.txt
-set Status=Check
+
 call RefreshEnv.cmd
 cls
-call :Check_Script_Update
 call :Python
 call :Miner
 
@@ -84,7 +85,7 @@ if "%Auto%"=="True" echo.
 if "%Auto%"=="True" echo    Auto-mining has been enabled.
 if "%Auto%"=="True" echo    Miner will autorun in 5s
 echo.
-echo    (1) Update Python 
+echo    (1) Update Python
 echo    (2) Update Miner Program
 echo    (3) Install Requirements
 echo    (4) Edit Miner Setting
