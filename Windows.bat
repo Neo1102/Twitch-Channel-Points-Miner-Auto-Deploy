@@ -252,7 +252,7 @@ goto menu
 echo Checking Script Update......
 echo.
 :Github
-Powershell wget -Uri "https://github.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/raw/refs/heads/main/Windows.bat" -OutFile "GitHub.bat"
+Powershell wget -Uri "https://raw.githubusercontent.com/Neo1102/Twitch-Channel-Points-Miner-Auto-Deploy/refs/heads/main/Windows.bat" -OutFile "GitHub.bat"
 if not exist GitHub.bat goto :eof
 fc Windows.bat GitHub.bat >nul
 if "%errorlevel%"=="0" del GitHub.bat&goto :eof
@@ -266,3 +266,4 @@ echo start "" /D "%~dp0" %~nx0>>ScriptUpdate.bat
 echo exit>>ScriptUpdate.bat
 start ScriptUpdate.bat
 exit
+
