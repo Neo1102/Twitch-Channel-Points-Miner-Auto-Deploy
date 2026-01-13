@@ -67,7 +67,7 @@ call RefreshEnv.cmd
 findstr "Python.Launcher" List.txt >nul
 if "%errorlevel%"=="0" winget uninstall Python.Launcher --silent
 py list|findstr /C:"These runtimes were found, but cannot be updated or uninstalled." >nul
-if "%errorlevel%"=="0" for /f %%i in ('Powershell "(py list -f=json | ConvertFrom-Json).versions[0].'tag'"') do winget uninstall Python.Python.%%i --silent
+if "%errorlevel%"=="0" for /f %%i in ('Powershell "(py list -f=json | ConvertFrom-Json).versions[0].'tag'"') do winget uninstall Python.Python.%%i --silent&py uninstall -y -purge
 
 del /q List.txt
 
@@ -141,7 +141,7 @@ if "%errorlevel%"=="3" py uninstall -y -purge
 if "%errorlevel%"=="2" py uninstall %PythonVer% -y
 :DownloadPython
 py install %LastsPythonVer% -y
-py install --configure
+py install --configure -y
 call RefreshEnv.cmd
 for /f %%i in ('Powershell "(py list -f=json | ConvertFrom-Json).versions[0].'sort-version'"') do set PythonVer=%%i
 call :Requirements
