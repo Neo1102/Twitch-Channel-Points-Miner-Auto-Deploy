@@ -63,6 +63,11 @@ findstr /i /C:"Notepad++ (64-bit x64)" List.txt >nul
 if "%errorlevel%"=="0" ( set Action=upgrade ) else ( set Action=install )
 winget %Action% Notepad++.Notepad++ --silent --accept-source-agreements --accept-package-agreements
 
+findstr "Python.Launcher" List.txt >nul
+if "%errorlevel%"=="0" winget uninstall Python.Launcher --silent
+py list|findstr /C:"These runtimes were found, but cannot be updated or uninstalled." >nul
+if "%errorlevel%"=="0" for /f %%i in ('Powershell "(py list -f=json | ConvertFrom-Json).versions[0].'tag'"') do winget uninstall Python.Python.%%i --silent
+
 del /q List.txt
 
 call RefreshEnv.cmd
