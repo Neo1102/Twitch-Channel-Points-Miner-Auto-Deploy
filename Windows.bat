@@ -144,9 +144,10 @@ py install %LastsPythonVer% -y
 py install --configure -y
 call RefreshEnv.cmd
 for /f %%i in ('Powershell "(py list -f=json | ConvertFrom-Json).versions[0].'sort-version'"') do set PythonVer=%%i
-call :Requirements
 set PyUpdate=
-if not "%Status%"=="Check" timeout 3
+if "%Status%"=="Check" goto :eof
+call :Requirements
+timeout 3
 goto :eof
 
 
